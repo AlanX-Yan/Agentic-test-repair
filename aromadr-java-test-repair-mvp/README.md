@@ -9,7 +9,6 @@ This MVP implements the architecture from the proposal:
 5. A feedback generator turns findings into repair instructions.
 6. The coding agent repairs the tests and the loop repeats.
 
-The local demo supports both zero-dependency `javac-demo` tasks and a real Maven/JUnit 5 task. Maven is available in `../tools/apache-maven-3.9.16`, and the harness automatically uses it when a task sets `"build_tool": "maven"`. The `javac-demo` tasks still use JUnit-style tests with a tiny local `org.junit.jupiter.api` stub and reflection launcher so they remain runnable without downloading dependencies.
 
 ## Quick Start
 
