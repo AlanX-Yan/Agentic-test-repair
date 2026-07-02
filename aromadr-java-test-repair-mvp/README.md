@@ -1,6 +1,6 @@
 # AromaDr Java Test Repair MVP
 
-This MVP implements the architecture from the revised proposal:
+This MVP implements the architecture from the proposal:
 
 1. A coding agent generates Java tests.
 2. A Java execution harness compiles and runs them.
