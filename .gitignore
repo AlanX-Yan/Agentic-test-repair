@@ -1,0 +1,23 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Local run outputs
+.mvp_runs/
+aromadr-java-test-repair-mvp/.mvp_runs/
+rendered_proposal/
+ql_graduation_memo/
+
+# Local tool downloads and installers
+tools/
+
+# External repositories are documented but not vendored
+external/
+
+# Scratch/demo folders not part of the public research prototype
+demo_mcp/
+
+# Editor and OS noise
+.idea/
+.vscode/
+*.swp

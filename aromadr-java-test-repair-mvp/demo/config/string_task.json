@@ -1,0 +1,14 @@
+{
+  "task_id": "string-sanitizer-java-demo",
+  "project_root": "string_project",
+  "source_under_test": "src/main/java/com/example/StringSanitizer.java",
+  "test_file": "src/test/java/com/example/StringSanitizerBehaviorTest.java",
+  "target_description": "Generate and repair Java tests for StringSanitizer.normalize.",
+  "build_tool": "javac-demo",
+  "max_iterations": 3,
+  "source_roots": [
+    "src/main/java",
+    "src/test/java"
+  ],
+  "test_runner_class": "com.example.TestLauncher"
+}

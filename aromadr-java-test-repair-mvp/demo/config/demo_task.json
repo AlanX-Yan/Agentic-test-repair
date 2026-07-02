@@ -1,0 +1,14 @@
+{
+  "task_id": "calculator-java-demo",
+  "project_root": "java_project",
+  "source_under_test": "src/main/java/com/example/Calculator.java",
+  "test_file": "src/test/java/com/example/CalculatorBehaviorTest.java",
+  "target_description": "Generate and repair Java tests for Calculator.add, Calculator.divide, and Calculator.clamp.",
+  "build_tool": "javac-demo",
+  "max_iterations": 3,
+  "source_roots": [
+    "src/main/java",
+    "src/test/java"
+  ],
+  "test_runner_class": "com.example.TestLauncher"
+}

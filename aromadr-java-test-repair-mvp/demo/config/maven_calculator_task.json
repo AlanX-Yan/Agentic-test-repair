@@ -1,0 +1,14 @@
+{
+  "task_id": "maven-calculator-java-demo",
+  "project_root": "maven_calculator_project",
+  "source_under_test": "src/main/java/com/example/Calculator.java",
+  "test_file": "src/test/java/com/example/CalculatorBehaviorTest.java",
+  "target_description": "Generate and repair real JUnit 5 tests for Calculator.add, Calculator.divide, and Calculator.clamp in a Maven project.",
+  "build_tool": "maven",
+  "max_iterations": 3,
+  "source_roots": [
+    "src/main/java",
+    "src/test/java"
+  ],
+  "max_accepted_smells": 0
+}

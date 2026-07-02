@@ -1,0 +1,7 @@
+{
+  "tasks": [
+    "demo_task.json",
+    "string_task.json",
+    "maven_calculator_task.json"
+  ]
+}
