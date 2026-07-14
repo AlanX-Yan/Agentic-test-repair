@@ -37,6 +37,10 @@ The current deterministic repair logic handles the AromaDr smells observed in th
 - `AssertionRoulette`
 - `ExceptionHandling`
 
+The repository also includes a Maven dataset scanner for extended experiments.
+It scans Maven projects, checks whether tests compile and pass, batch-runs
+test-smell detection, and produces candidate repair reports.
+
 ## Repository Layout
 
 ```text
@@ -92,6 +96,13 @@ cd aromadr-java-test-repair-mvp
 AROMADR_API_URL=http://localhost:3000 scripts/run_benchmark_with_aromadr.sh
 ```
 
+Scan a Maven dataset and generate candidate reports:
+
+```bash
+cd aromadr-java-test-repair-mvp
+AROMADR_API_URL=http://localhost:3000 python3 -m test_repair_mvp --scan-dataset demo/dataset_sample --dataset-report-dir .mvp_runs/dataset-scan-sample-aromadr
+```
+
 Reports are written under:
 
 ```text
@@ -105,12 +116,13 @@ Those generated reports are useful locally, but they are not committed to keep t
 - [MVP README](aromadr-java-test-repair-mvp/README.md)
 - [Architecture](aromadr-java-test-repair-mvp/docs/ARCHITECTURE.md)
 - [AromaDr Integration](aromadr-java-test-repair-mvp/docs/AROMADR_INTEGRATION.md)
+- [Dataset Scanning](aromadr-java-test-repair-mvp/docs/DATASET_SCANNING.md)
 - [Proposal HTML](docs/proposal/Goal-Driven_Test_Repair_Proposal_Improved.html)
 
 ## Next Steps
 
 - Replace the deterministic template repair agent with a real coding-agent backend.
-- Add more Java/Maven benchmark tasks.
+- Use the dataset scanner to evaluate DataTD or another Maven project dataset.
 - Add JaCoCo coverage metrics.
 - Add PIT mutation score as a stretch evaluation metric.
 - Expand repair strategies as more AromaDr smell categories appear.

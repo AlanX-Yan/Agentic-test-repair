@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 
+# Java/Maven build and local dependency cache
+target/
+.m2/
+
 # Local run outputs
 .mvp_runs/
 aromadr-java-test-repair-mvp/.mvp_runs/

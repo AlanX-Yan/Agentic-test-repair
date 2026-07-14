@@ -36,6 +36,7 @@ flowchart TD
 | Orchestrator | `test_repair_mvp/orchestrator.py` | Owns the generate -> execute -> detect -> evaluate -> repair loop. |
 | Reporting | `test_repair_mvp/reporting.py` | Saves per-iteration test snapshots, smell reports, execution results, and a final Markdown summary. |
 | Benchmark runner | `test_repair_mvp/benchmark.py` | Runs multiple tasks and creates aggregate before-after CSV, JSON, and Markdown reports. |
+| Dataset scanner | `test_repair_mvp/dataset_scanner.py` | Discovers Maven projects, checks `mvn test-compile` and `mvn test`, batch-scans Java test files with AromaDr, and writes candidate repair reports. |
 
 ## Data Contracts
 
@@ -115,6 +116,24 @@ The real research version can tune `max_accepted_smells` and extend these criter
 - per-task iteration artifacts under `tasks/<task_id>/artifacts`
 
 This is the skeleton needed for the proposal's 20 to 40 Java-task evaluation. More tasks can be added by creating another task JSON and adding it to the benchmark config.
+
+## Dataset Preparation
+
+The scanner mode prepares larger Maven datasets for the repair loop:
+
+```bash
+python3 -m test_repair_mvp --scan-dataset /path/to/maven/dataset --dataset-report-dir .mvp_runs/dataset-scan
+```
+
+For each discovered `pom.xml`, it records whether the project has Java tests,
+whether `mvn test-compile` succeeds, and whether `mvn test` succeeds. It then
+scans each `src/test/java/**/*Test.java`, `*Tests.java`, or `*TestCase.java`
+file with the configured detector pipeline. A test file is marked as a candidate
+when the project compiles, tests pass, and at least one smell is reported.
+
+This is the bridge between the MVP demo and larger datasets such as DataTD:
+first identify compilable, runnable, smelly test files, then convert selected
+rows from `candidate_tests.csv` into repair tasks.
 
 ## AromaDr HTTP Adapter
 

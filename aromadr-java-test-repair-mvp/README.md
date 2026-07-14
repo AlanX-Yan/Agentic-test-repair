@@ -68,6 +68,28 @@ cat .mvp_runs/benchmark/benchmark_report.md
 cat .mvp_runs/benchmark/benchmark_results.csv
 ```
 
+## Maven Dataset Scanner
+
+The MVP now includes a dataset-preparation mode for extended experiments on
+Maven project datasets such as DataTD. It discovers Maven projects, checks
+whether their tests compile and pass, scans Java test files for smells, and
+writes candidate repair reports.
+
+Run the included sample dataset:
+
+```bash
+python3 -m test_repair_mvp --scan-dataset demo/dataset_sample --dataset-report-dir .mvp_runs/dataset-scan-sample
+```
+
+With AromaDr running:
+
+```bash
+AROMADR_API_URL="http://localhost:3000" python3 -m test_repair_mvp --scan-dataset demo/dataset_sample --dataset-report-dir .mvp_runs/dataset-scan-sample-aromadr
+```
+
+The scanner writes `dataset_scan_summary.json`, `projects.csv`,
+`test_files.csv`, `candidate_tests.csv`, and `dataset_candidate_report.md`.
+
 ## AromaDr Integration
 
 The preferred integration is AromaDr's HTTP API. Start AromaDr separately, then set `AROMADR_API_URL`:
@@ -125,6 +147,7 @@ demo/
 docs/
   ARCHITECTURE.md    full architecture and extension plan
   AROMADR_INTEGRATION.md exact AromaDr API wiring notes
+  DATASET_SCANNING.md Maven dataset scanner and candidate report notes
 ```
 
 ## MVP Boundaries
