@@ -15,6 +15,9 @@ ql_graduation_memo/
 # Local tool downloads and installers
 tools/
 
+# Local datasets can be very large and should not be committed
+datasets/
+
 # External repositories are documented but not vendored
 external/
 

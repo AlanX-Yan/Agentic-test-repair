@@ -103,6 +103,14 @@ cd aromadr-java-test-repair-mvp
 AROMADR_API_URL=http://localhost:3000 python3 -m test_repair_mvp --scan-dataset demo/dataset_sample --dataset-report-dir .mvp_runs/dataset-scan-sample-aromadr
 ```
 
+Prepare a small curated Maven dataset before using a large dataset such as DataTD:
+
+```bash
+cd aromadr-java-test-repair-mvp
+python3 scripts/prepare_curated_maven_dataset.py --tier starter --limit 2
+python3 -m test_repair_mvp --scan-dataset ../datasets/curated_maven --dataset-report-dir .mvp_runs/curated-maven-scan --dataset-maven-strategy fast --dataset-candidate-mode test-compile --dataset-timeout-seconds 600
+```
+
 Reports are written under:
 
 ```text
@@ -116,6 +124,8 @@ Those generated reports are useful locally, but they are not committed to keep t
 - [MVP README](aromadr-java-test-repair-mvp/README.md)
 - [Architecture](aromadr-java-test-repair-mvp/docs/ARCHITECTURE.md)
 - [AromaDr Integration](aromadr-java-test-repair-mvp/docs/AROMADR_INTEGRATION.md)
+- [Curated Maven Dataset](aromadr-java-test-repair-mvp/docs/CURATED_MAVEN_DATASET.md)
+- [Curated Maven Results](aromadr-java-test-repair-mvp/docs/CURATED_MAVEN_RESULTS.md)
 - [Dataset Scanning](aromadr-java-test-repair-mvp/docs/DATASET_SCANNING.md)
 - [Proposal HTML](docs/proposal/Goal-Driven_Test_Repair_Proposal_Improved.html)
 

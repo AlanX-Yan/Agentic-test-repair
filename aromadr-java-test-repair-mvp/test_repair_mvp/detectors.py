@@ -20,6 +20,9 @@ class AromaDrDetector:
     set AROMADR_API_URL, for example http://localhost:3000.
     """
 
+    def __init__(self) -> None:
+        self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
     def detect(self, task: ProjectTask) -> SmellReport:
         api_url = os.environ.get("AROMADR_API_URL")
         if api_url:
@@ -59,8 +62,7 @@ class AromaDrDetector:
             method="POST",
         )
         try:
-            opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-            with opener.open(request, timeout=20) as response:
+            with self._opener.open(request, timeout=20) as response:
                 raw = response.read().decode("utf-8")
         except (urllib.error.URLError, TimeoutError, OSError) as error:
             return SmellReport(

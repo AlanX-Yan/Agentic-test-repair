@@ -1,0 +1,84 @@
+{
+  "description": "Small-to-medium Maven Java projects for early extended experiments before using a large dataset such as DataTD.",
+  "default_output_dir": "../datasets/curated_maven",
+  "projects": [
+    {
+      "id": "commons-cli",
+      "repo": "https://github.com/apache/commons-cli.git",
+      "tier": "starter",
+      "notes": "Small Apache Commons command-line parsing library."
+    },
+    {
+      "id": "commons-codec",
+      "repo": "https://github.com/apache/commons-codec.git",
+      "tier": "starter",
+      "notes": "Small Apache Commons encoding/decoding library."
+    },
+    {
+      "id": "commons-csv",
+      "repo": "https://github.com/apache/commons-csv.git",
+      "tier": "starter",
+      "notes": "Small Apache Commons CSV library with JUnit tests."
+    },
+    {
+      "id": "commons-io",
+      "repo": "https://github.com/apache/commons-io.git",
+      "tier": "starter",
+      "notes": "Apache Commons IO library; useful but tests may take longer."
+    },
+    {
+      "id": "commons-lang",
+      "repo": "https://github.com/apache/commons-lang.git",
+      "tier": "starter",
+      "notes": "Common Java utility library with many tests."
+    },
+    {
+      "id": "commons-text",
+      "repo": "https://github.com/apache/commons-text.git",
+      "tier": "starter",
+      "notes": "Text processing library with Maven/JUnit tests."
+    },
+    {
+      "id": "commons-collections",
+      "repo": "https://github.com/apache/commons-collections.git",
+      "tier": "extended",
+      "notes": "Larger Apache Commons collection utilities project."
+    },
+    {
+      "id": "commons-compress",
+      "repo": "https://github.com/apache/commons-compress.git",
+      "tier": "extended",
+      "notes": "Larger project; useful after the starter set is working."
+    },
+    {
+      "id": "gson",
+      "repo": "https://github.com/google/gson.git",
+      "tier": "extended",
+      "notes": "Google JSON library with a real Maven build."
+    },
+    {
+      "id": "joda-time",
+      "repo": "https://github.com/JodaOrg/joda-time.git",
+      "tier": "extended",
+      "notes": "Mature Java date/time project with substantial tests."
+    },
+    {
+      "id": "commons-validator",
+      "repo": "https://github.com/apache/commons-validator.git",
+      "tier": "extended",
+      "notes": "Apache Commons validation library; smaller than the heavy compression project."
+    },
+    {
+      "id": "commons-email",
+      "repo": "https://github.com/apache/commons-email.git",
+      "tier": "extended",
+      "notes": "Apache Commons email library with Maven/JUnit tests."
+    },
+    {
+      "id": "commons-dbutils",
+      "repo": "https://github.com/apache/commons-dbutils.git",
+      "tier": "extended",
+      "notes": "Small Apache Commons database utility project with Maven tests."
+    }
+  ]
+}

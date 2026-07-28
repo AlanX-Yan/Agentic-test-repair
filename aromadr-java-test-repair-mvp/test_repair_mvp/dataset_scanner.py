@@ -54,10 +54,17 @@ class TestFileScan:
     smell_report: SmellReport
     project_test_compiles: bool
     project_tests_pass: bool
+    candidate_mode: str = "tests-pass"
 
     @property
     def is_candidate(self) -> bool:
-        return self.project_test_compiles and self.project_tests_pass and self.smell_report.count > 0
+        if self.smell_report.count <= 0:
+            return False
+        if self.candidate_mode == "smelly-only":
+            return True
+        if self.candidate_mode == "test-compile":
+            return self.project_test_compiles
+        return self.project_test_compiles and self.project_tests_pass
 
 
 def scan_maven_dataset(
@@ -66,6 +73,9 @@ def scan_maven_dataset(
     *,
     run_maven: bool = True,
     timeout_seconds: int = 180,
+    maven_repo: Path | None = None,
+    maven_strategy: str = "lifecycle",
+    candidate_mode: str = "tests-pass",
 ) -> dict[str, Any]:
     """Scan a directory of Maven projects and write candidate reports.
 
@@ -78,6 +88,7 @@ def scan_maven_dataset(
     dataset_root = dataset_root.resolve()
     output_dir = output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+    resolved_maven_repo = (maven_repo or output_dir / ".m2" / "repository").resolve()
 
     detector = CompositeDetector()
     project_scans: list[MavenProjectScan] = []
@@ -85,7 +96,14 @@ def scan_maven_dataset(
 
     for pom_file in discover_maven_projects(dataset_root):
         project_root = pom_file.parent
-        project_scan = _scan_project(project_root, dataset_root, run_maven, timeout_seconds)
+        project_scan = _scan_project(
+            project_root,
+            dataset_root,
+            run_maven,
+            timeout_seconds,
+            resolved_maven_repo,
+            maven_strategy,
+        )
         project_scans.append(project_scan)
         for test_file in project_scan.test_files:
             smell_report = detector.detect(_task_for_test_file(project_scan, test_file))
@@ -97,6 +115,7 @@ def scan_maven_dataset(
                     smell_report=smell_report,
                     project_test_compiles=project_scan.test_compiles,
                     project_tests_pass=project_scan.tests_pass,
+                    candidate_mode=candidate_mode,
                 )
             )
 
@@ -123,14 +142,26 @@ def _scan_project(
     dataset_root: Path,
     run_maven: bool,
     timeout_seconds: int,
+    maven_repo: Path,
+    maven_strategy: str,
 ) -> MavenProjectScan:
     test_files = _discover_test_files(project_root)
     test_compile = None
     test_run = None
     if run_maven and test_files:
-        test_compile = _run_maven(project_root, "test-compile", timeout_seconds)
+        test_compile = _run_maven(
+            project_root,
+            _maven_goals("test-compile", maven_strategy),
+            timeout_seconds,
+            maven_repo,
+        )
         if test_compile.ok:
-            test_run = _run_maven(project_root, "test", timeout_seconds)
+            test_run = _run_maven(
+                project_root,
+                _maven_goals("test", maven_strategy),
+                timeout_seconds,
+                maven_repo,
+            )
     return MavenProjectScan(
         project_id=_project_id(project_root, dataset_root),
         project_root=project_root,
@@ -141,11 +172,38 @@ def _scan_project(
     )
 
 
-def _run_maven(project_root: Path, goal: str, timeout_seconds: int) -> CommandResult:
+def _run_maven(
+    project_root: Path,
+    goals: list[str],
+    timeout_seconds: int,
+    maven_repo: Path,
+) -> CommandResult:
     maven_bin = JavaExecutionHarness()._maven_bin()
-    local_repo = project_root / ".m2" / "repository"
-    command = [maven_bin, f"-Dmaven.repo.local={local_repo}", goal]
+    command = [
+        maven_bin,
+        "--batch-mode",
+        "--no-transfer-progress",
+        f"-Dmaven.repo.local={maven_repo}",
+        "-DskipITs=true",
+        "-Drat.skip=true",
+        "-Dcheckstyle.skip=true",
+        "-Dspotbugs.skip=true",
+        "-Dmaven.javadoc.skip=true",
+    ] + goals
     return run_command(command, project_root, timeout_seconds=timeout_seconds)
+
+
+def _maven_goals(check: str, strategy: str) -> list[str]:
+    if strategy == "fast":
+        if check == "test-compile":
+            return [
+                "resources:resources",
+                "resources:testResources",
+                "compiler:compile",
+                "compiler:testCompile",
+            ]
+        return ["surefire:test"]
+    return [check]
 
 
 def _discover_test_files(project_root: Path) -> list[Path]:
@@ -201,9 +259,16 @@ def _build_summary(
         "projects_with_tests": sum(1 for scan in project_scans if scan.has_tests),
         "projects_test_compile": sum(1 for scan in project_scans if scan.test_compiles),
         "projects_tests_pass": sum(1 for scan in project_scans if scan.tests_pass),
+        "projects_test_compile_timeout": sum(
+            1 for scan in project_scans if scan.test_compile and scan.test_compile.return_code == 124
+        ),
+        "projects_test_timeout": sum(
+            1 for scan in project_scans if scan.test_run and scan.test_run.return_code == 124
+        ),
         "test_file_count": len(test_scans),
         "smelly_test_file_count": sum(1 for scan in test_scans if scan.smell_report.count > 0),
         "candidate_test_count": len(candidates),
+        "candidate_mode": candidates[0].candidate_mode if candidates else _candidate_mode(test_scans),
         "total_smells": sum(scan.smell_report.count for scan in test_scans),
         "smell_types": dict(sorted(smell_types.items(), key=lambda item: (-item[1], item[0]))),
         "aromadr_available_files": sum(1 for scan in test_scans if scan.smell_report.aroma_dr_available),
@@ -220,6 +285,8 @@ def _write_projects_csv(path: Path, project_scans: list[MavenProjectScan]) -> No
         "test_ok",
         "test_compile_return_code",
         "test_return_code",
+        "test_compile_problem",
+        "test_problem",
     ]
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -236,8 +303,23 @@ def _write_projects_csv(path: Path, project_scans: list[MavenProjectScan]) -> No
                         scan.test_compile.return_code if scan.test_compile else ""
                     ),
                     "test_return_code": scan.test_run.return_code if scan.test_run else "",
+                    "test_compile_problem": _command_problem(scan.test_compile),
+                    "test_problem": _command_problem(scan.test_run),
                 }
             )
+
+
+def _command_problem(result: CommandResult | None) -> str:
+    if result is None or result.ok:
+        return ""
+    if result.return_code == 124:
+        return "timeout"
+    text = "\n".join([result.stderr, result.stdout])
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("[ERROR]"):
+            return stripped[:240]
+    return text.strip().replace("\n", " ")[:240]
 
 
 def _write_test_files_csv(path: Path, test_scans: list[TestFileScan]) -> None:
@@ -246,6 +328,7 @@ def _write_test_files_csv(path: Path, test_scans: list[TestFileScan]) -> None:
         "test_file",
         "test_compile_ok",
         "test_ok",
+        "candidate_mode",
         "detector",
         "aromadr_available",
         "smell_count",
@@ -265,6 +348,7 @@ def _write_candidates_csv(path: Path, test_scans: list[TestFileScan]) -> None:
         "test_file",
         "test_compile_ok",
         "test_ok",
+        "candidate_mode",
         "detector",
         "aromadr_available",
         "smell_count",
@@ -288,6 +372,7 @@ def _test_scan_row(scan: TestFileScan) -> dict[str, Any]:
         "test_file": str(scan.test_file),
         "test_compile_ok": scan.project_test_compiles,
         "test_ok": scan.project_tests_pass,
+        "candidate_mode": scan.candidate_mode,
         "detector": scan.smell_report.detector,
         "aromadr_available": scan.smell_report.aroma_dr_available,
         "smell_count": scan.smell_report.count,
@@ -304,9 +389,12 @@ def _write_markdown_report(path: Path, summary: dict[str, Any], test_scans: list
         f"- Projects with Java tests: `{summary['projects_with_tests']}`",
         f"- Projects where tests compile: `{summary['projects_test_compile']}`",
         f"- Projects where tests pass: `{summary['projects_tests_pass']}`",
+        f"- Maven test-compile timeouts: `{summary['projects_test_compile_timeout']}`",
+        f"- Maven test timeouts: `{summary['projects_test_timeout']}`",
         f"- Test files scanned: `{summary['test_file_count']}`",
         f"- Smelly test files: `{summary['smelly_test_file_count']}`",
         f"- Candidate repair tests: `{summary['candidate_test_count']}`",
+        f"- Candidate mode: `{summary['candidate_mode']}`",
         f"- AromaDr available for files: `{summary['aromadr_available_files']}`",
         "",
         "## Smell Types",
@@ -340,3 +428,9 @@ def _write_markdown_report(path: Path, summary: dict[str, Any], test_scans: list
     else:
         lines.append("| none | none | 0 | none | none |")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _candidate_mode(test_scans: list[TestFileScan]) -> str:
+    if not test_scans:
+        return "tests-pass"
+    return test_scans[0].candidate_mode

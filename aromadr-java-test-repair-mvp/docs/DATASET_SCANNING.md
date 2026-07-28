@@ -31,6 +31,18 @@ python3 -m test_repair_mvp \
   --dataset-skip-maven
 ```
 
+For real open-source projects, use a longer timeout and a shared Maven cache:
+
+```bash
+python3 -m test_repair_mvp \
+  --scan-dataset /path/to/maven/dataset \
+  --dataset-report-dir .mvp_runs/dataset-scan \
+  --dataset-maven-strategy fast \
+  --dataset-candidate-mode test-compile \
+  --dataset-maven-repo /path/to/shared/.m2/repository \
+  --dataset-timeout-seconds 600
+```
+
 ## Outputs
 
 The scanner writes:
@@ -43,7 +55,7 @@ The scanner writes:
 
 ## Candidate Rule
 
-A test file is currently marked as a repair candidate when:
+By default, a test file is marked as a repair candidate when:
 
 1. Its project contains a `pom.xml`.
 2. The project has Java test files under `src/test/java`.
@@ -51,6 +63,19 @@ A test file is currently marked as a repair candidate when:
 4. `mvn test` succeeds.
 5. The detector reports at least one smell.
 
+For large or noisy real-world datasets, use:
+
+```text
+--dataset-candidate-mode test-compile
+```
+
+This marks files as candidates when their project tests compile and at least one
+smell is detected, even if the full test command needs additional per-project
+configuration.
+
 When `AROMADR_API_URL` is set and reachable, the scanner uses AromaDr through the
 same detector adapter as the repair loop. If AromaDr is unavailable, it falls
 back to the lightweight local detector so dataset plumbing can still be tested.
+
+`projects.csv` also records Maven return codes and short problem labels. A
+return code of `124` means the Maven command timed out.

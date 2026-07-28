@@ -75,6 +75,13 @@ Maven project datasets such as DataTD. It discovers Maven projects, checks
 whether their tests compile and pass, scans Java test files for smells, and
 writes candidate repair reports.
 
+For a smaller alternative to a large dataset, prepare a curated set of real
+Maven projects:
+
+```bash
+python3 scripts/prepare_curated_maven_dataset.py --tier starter --limit 2
+```
+
 Run the included sample dataset:
 
 ```bash
@@ -147,6 +154,8 @@ demo/
 docs/
   ARCHITECTURE.md    full architecture and extension plan
   AROMADR_INTEGRATION.md exact AromaDr API wiring notes
+  CURATED_MAVEN_DATASET.md smaller real-project dataset workflow
+  CURATED_MAVEN_RESULTS.md current curated dataset scan summary
   DATASET_SCANNING.md Maven dataset scanner and candidate report notes
 ```
 
