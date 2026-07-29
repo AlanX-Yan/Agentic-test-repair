@@ -1,0 +1,12 @@
+project_id,attempts,accepted,success_rate
+Neloop-jaclp,2,2,1.0
+codingthought-ddd-aggregate-helper,1,0,0.0
+dm-drogeriemarkt-micrometer-metrics-wrapper,2,1,0.5
+dm-drogeriemarkt-retrylib-spring-boot-starter,2,2,1.0
+eo-cqrs-eo-rs,2,2,1.0
+hdisysteme-java-cfenv-s3,1,1,1.0
+jashaj-spring-boot-thymeleaf-fragments,2,2,1.0
+kriscfoster-spring-boot-testing-pyramid,2,2,1.0
+psamsotha-jersey-web-initializer,1,1,1.0
+rodrigovp-ecommerce,1,1,1.0
+rodrigovp-fragmentos,1,1,1.0

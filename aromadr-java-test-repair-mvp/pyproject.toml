@@ -1,0 +1,9 @@
+[project]
+name = "aromadr-java-test-repair-mvp"
+version = "0.1.0"
+description = "Goal-driven Java test-smell repair with Maven, AromaDr, and DeepSeek"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -58,7 +58,18 @@ class TestFileScan:
 
     @property
     def is_candidate(self) -> bool:
-        if self.smell_report.count <= 0:
+        return self._is_candidate_for_count(self.smell_report.count)
+
+    @property
+    def is_aromadr_candidate(self) -> bool:
+        return self._is_candidate_for_count(self.smell_report.count_from("AromaDr"))
+
+    @property
+    def is_lightweight_candidate(self) -> bool:
+        return self._is_candidate_for_count(self.smell_report.count_from("lightweight"))
+
+    def _is_candidate_for_count(self, smell_count: int) -> bool:
+        if smell_count <= 0:
             return False
         if self.candidate_mode == "smelly-only":
             return True
@@ -249,10 +260,11 @@ def _build_summary(
     output_dir: Path,
 ) -> dict[str, Any]:
     candidates = [scan for scan in test_scans if scan.is_candidate]
-    smell_types: dict[str, int] = {}
-    for scan in test_scans:
-        for smell_type, count in scan.smell_report.by_type().items():
-            smell_types[smell_type] = smell_types.get(smell_type, 0) + count
+    aromadr_candidates = [scan for scan in test_scans if scan.is_aromadr_candidate]
+    lightweight_candidates = [scan for scan in test_scans if scan.is_lightweight_candidate]
+    combined_metrics = _smell_metrics(test_scans)
+    aromadr_metrics = _smell_metrics(test_scans, source="AromaDr")
+    lightweight_metrics = _smell_metrics(test_scans, source="lightweight")
 
     return {
         "project_count": len(project_scans),
@@ -266,13 +278,44 @@ def _build_summary(
             1 for scan in project_scans if scan.test_run and scan.test_run.return_code == 124
         ),
         "test_file_count": len(test_scans),
-        "smelly_test_file_count": sum(1 for scan in test_scans if scan.smell_report.count > 0),
+        "smelly_test_file_count": combined_metrics["smelly_file_count"],
         "candidate_test_count": len(candidates),
+        "aromadr_smelly_test_file_count": aromadr_metrics["smelly_file_count"],
+        "aromadr_candidate_test_count": len(aromadr_candidates),
+        "lightweight_smelly_test_file_count": lightweight_metrics["smelly_file_count"],
+        "lightweight_candidate_test_count": len(lightweight_candidates),
         "candidate_mode": candidates[0].candidate_mode if candidates else _candidate_mode(test_scans),
-        "total_smells": sum(scan.smell_report.count for scan in test_scans),
-        "smell_types": dict(sorted(smell_types.items(), key=lambda item: (-item[1], item[0]))),
+        "total_smells": combined_metrics["total"],
+        "smell_types": combined_metrics["types"],
+        "aromadr_total_smells": aromadr_metrics["total"],
+        "aromadr_smell_types": aromadr_metrics["types"],
+        "lightweight_total_smells": lightweight_metrics["total"],
+        "lightweight_smell_types": lightweight_metrics["types"],
         "aromadr_available_files": sum(1 for scan in test_scans if scan.smell_report.aroma_dr_available),
         "artifacts_dir": str(output_dir),
+    }
+
+
+def _smell_metrics(
+    test_scans: list[TestFileScan],
+    source: str | None = None,
+) -> dict[str, Any]:
+    smell_types: dict[str, int] = {}
+    total = 0
+    smelly_file_count = 0
+    for scan in test_scans:
+        report = scan.smell_report
+        count = report.count if source is None else report.count_from(source)
+        by_type = report.by_type() if source is None else report.by_type_from(source)
+        total += count
+        if count > 0:
+            smelly_file_count += 1
+        for smell_type, smell_count in by_type.items():
+            smell_types[smell_type] = smell_types.get(smell_type, 0) + smell_count
+    return {
+        "total": total,
+        "smelly_file_count": smelly_file_count,
+        "types": dict(sorted(smell_types.items(), key=lambda item: (-item[1], item[0]))),
     }
 
 
@@ -333,7 +376,13 @@ def _write_test_files_csv(path: Path, test_scans: list[TestFileScan]) -> None:
         "aromadr_available",
         "smell_count",
         "smell_types",
+        "aromadr_smell_count",
+        "aromadr_smell_types",
+        "lightweight_smell_count",
+        "lightweight_smell_types",
         "candidate",
+        "aromadr_candidate",
+        "lightweight_candidate",
     ]
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -353,7 +402,13 @@ def _write_candidates_csv(path: Path, test_scans: list[TestFileScan]) -> None:
         "aromadr_available",
         "smell_count",
         "smell_types",
+        "aromadr_smell_count",
+        "aromadr_smell_types",
+        "lightweight_smell_count",
+        "lightweight_smell_types",
         "candidate",
+        "aromadr_candidate",
+        "lightweight_candidate",
     ]
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -367,6 +422,14 @@ def _test_scan_row(scan: TestFileScan) -> dict[str, Any]:
     smell_types = "; ".join(
         f"{name}={count}" for name, count in sorted(scan.smell_report.by_type().items())
     )
+    aromadr_smell_types = "; ".join(
+        f"{name}={count}"
+        for name, count in sorted(scan.smell_report.by_type_from("AromaDr").items())
+    )
+    lightweight_smell_types = "; ".join(
+        f"{name}={count}"
+        for name, count in sorted(scan.smell_report.by_type_from("lightweight").items())
+    )
     return {
         "project_id": scan.project_id,
         "test_file": str(scan.test_file),
@@ -377,7 +440,13 @@ def _test_scan_row(scan: TestFileScan) -> dict[str, Any]:
         "aromadr_available": scan.smell_report.aroma_dr_available,
         "smell_count": scan.smell_report.count,
         "smell_types": smell_types,
+        "aromadr_smell_count": scan.smell_report.count_from("AromaDr"),
+        "aromadr_smell_types": aromadr_smell_types,
+        "lightweight_smell_count": scan.smell_report.count_from("lightweight"),
+        "lightweight_smell_types": lightweight_smell_types,
         "candidate": scan.is_candidate,
+        "aromadr_candidate": scan.is_aromadr_candidate,
+        "lightweight_candidate": scan.is_lightweight_candidate,
     }
 
 
@@ -394,12 +463,42 @@ def _write_markdown_report(path: Path, summary: dict[str, Any], test_scans: list
         f"- Test files scanned: `{summary['test_file_count']}`",
         f"- Smelly test files: `{summary['smelly_test_file_count']}`",
         f"- Candidate repair tests: `{summary['candidate_test_count']}`",
+        f"- AromaDr-only smelly test files: `{summary['aromadr_smelly_test_file_count']}`",
+        f"- AromaDr-only candidate repair tests: `{summary['aromadr_candidate_test_count']}`",
+        f"- Lightweight-only smelly test files: `{summary['lightweight_smelly_test_file_count']}`",
+        f"- Lightweight-only candidate repair tests: `{summary['lightweight_candidate_test_count']}`",
         f"- Candidate mode: `{summary['candidate_mode']}`",
         f"- AromaDr available for files: `{summary['aromadr_available_files']}`",
         "",
-        "## Smell Types",
+        "## AromaDr-Only Smell Types",
         "",
     ]
+    if summary["aromadr_smell_types"]:
+        for smell_type, count in summary["aromadr_smell_types"].items():
+            lines.append(f"- `{smell_type}`: `{count}`")
+    else:
+        lines.append("- none")
+
+    lines.extend(
+        [
+            "",
+            "## Lightweight-Only Smell Types",
+            "",
+        ]
+    )
+    if summary["lightweight_smell_types"]:
+        for smell_type, count in summary["lightweight_smell_types"].items():
+            lines.append(f"- `{smell_type}`: `{count}`")
+    else:
+        lines.append("- none")
+
+    lines.extend(
+        [
+            "",
+            "## Combined Smell Types",
+            "",
+        ]
+    )
     if summary["smell_types"]:
         for smell_type, count in summary["smell_types"].items():
             lines.append(f"- `{smell_type}`: `{count}`")
@@ -411,8 +510,8 @@ def _write_markdown_report(path: Path, summary: dict[str, Any], test_scans: list
             "",
             "## Candidate Tests",
             "",
-            "| Project | Test File | Smells | Smell Types | Detector |",
-            "| --- | --- | ---: | --- | --- |",
+            "| Project | Test File | Combined | AromaDr | Lightweight | Smell Types | Detector |",
+            "| --- | --- | ---: | ---: | ---: | --- | --- |",
         ]
     )
     candidates = [scan for scan in test_scans if scan.is_candidate]
@@ -423,10 +522,12 @@ def _write_markdown_report(path: Path, summary: dict[str, Any], test_scans: list
             )
             lines.append(
                 f"| `{scan.project_id}` | `{scan.test_file}` | "
-                f"{scan.smell_report.count} | {smell_types} | `{scan.smell_report.detector}` |"
+                f"{scan.smell_report.count} | {scan.smell_report.count_from('AromaDr')} | "
+                f"{scan.smell_report.count_from('lightweight')} | {smell_types} | "
+                f"`{scan.smell_report.detector}` |"
             )
     else:
-        lines.append("| none | none | 0 | none | none |")
+        lines.append("| none | none | 0 | 0 | 0 | none | none |")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from .agents import create_coding_agent
 from .benchmark import run_benchmark
+from .candidate_repair import run_candidate_baselines
 from .config import load_task, rebase_task
 from .dataset_scanner import scan_maven_dataset
 from .orchestrator import GoalDrivenRepairOrchestrator
@@ -62,6 +64,58 @@ def parse_args() -> argparse.Namespace:
         default="tests-pass",
         help="Criteria for marking a smelly test file as a repair candidate.",
     )
+    parser.add_argument(
+        "--repair-candidates",
+        help="Run a candidate subset CSV through the isolated dataset baseline adapter.",
+    )
+    parser.add_argument(
+        "--repair-output-dir",
+        default=".mvp_runs/datatd-repair-baseline",
+        help="Output directory for isolated candidate projects and baseline reports.",
+    )
+    parser.add_argument(
+        "--repair-limit",
+        type=int,
+        help="Optional maximum number of candidate rows to process.",
+    )
+    parser.add_argument(
+        "--repair-offset",
+        type=int,
+        default=0,
+        help="Skip this many candidate rows before applying --repair-limit.",
+    )
+    parser.add_argument(
+        "--repair-maven-repo",
+        help="Shared Maven local repository for candidate baselines.",
+    )
+    parser.add_argument(
+        "--repair-timeout-seconds",
+        type=int,
+        default=600,
+        help="Timeout for each candidate Maven test command.",
+    )
+    parser.add_argument(
+        "--coding-backend",
+        choices=["template", "deepseek"],
+        default="template",
+        help="Coding backend. DeepSeek reads DEEPSEEK_API_KEY and related variables.",
+    )
+    parser.add_argument(
+        "--repair-max-attempts",
+        type=int,
+        default=1,
+        help="Maximum DeepSeek repair attempts after the candidate baseline.",
+    )
+    parser.add_argument(
+        "--repair-budget-usd",
+        type=float,
+        help="Optional shared DeepSeek budget cap for the candidate batch.",
+    )
+    parser.add_argument(
+        "--repair-resume",
+        action="store_true",
+        help="Resume from candidate_checkpoint.json without repeating completed rows.",
+    )
     return parser.parse_args()
 
 
@@ -69,6 +123,41 @@ def main() -> None:
     args = parse_args()
     repo_root = Path(__file__).resolve().parents[1]
     run_dir = (repo_root / args.run_dir).resolve()
+
+    if args.repair_candidates:
+        candidate_csv = Path(args.repair_candidates)
+        if not candidate_csv.is_absolute():
+            candidate_csv = (repo_root / candidate_csv).resolve()
+        output_dir = Path(args.repair_output_dir)
+        if not output_dir.is_absolute():
+            output_dir = (repo_root / output_dir).resolve()
+        maven_repo = Path(args.repair_maven_repo) if args.repair_maven_repo else None
+        if maven_repo and not maven_repo.is_absolute():
+            maven_repo = (repo_root / maven_repo).resolve()
+        summary = run_candidate_baselines(
+            candidate_csv,
+            output_dir,
+            offset=args.repair_offset,
+            limit=args.repair_limit,
+            maven_repo=maven_repo,
+            timeout_seconds=args.repair_timeout_seconds,
+            coding_backend=args.coding_backend,
+            repair_max_attempts=args.repair_max_attempts,
+            repair_budget_usd=args.repair_budget_usd,
+            resume=args.repair_resume,
+        )
+        print("DataTD candidate repair baseline complete")
+        print(f"Candidates: {summary['candidate_count']}")
+        print(f"Projects represented: {summary['projects_represented']}")
+        print(f"Compiled: {summary['compiled_count']}")
+        print(f"Tests pass: {summary['tests_pass_count']}")
+        print(f"AromaDr available: {summary['aromadr_available_count']}")
+        print(f"Eligible for API repair: {summary['eligible_count']}")
+        print(f"Accepted: {summary['accepted_count']}")
+        print(f"Rolled back: {summary['rolled_back_count']}")
+        print(f"Files unchanged: {summary['unchanged_count']}")
+        print(f"Artifacts: {summary['artifacts_dir']}")
+        return
 
     if args.scan_dataset:
         dataset_root = Path(args.scan_dataset)
@@ -124,7 +213,9 @@ def main() -> None:
 
     task = rebase_task(loaded_task, working_project)
 
-    orchestrator = GoalDrivenRepairOrchestrator(run_dir / "artifacts")
+    artifacts_dir = run_dir / "artifacts"
+    agent = create_coding_agent(args.coding_backend, artifacts_dir)
+    orchestrator = GoalDrivenRepairOrchestrator(artifacts_dir, agent=agent)
     run = orchestrator.run(task)
 
     summary = run.summary()

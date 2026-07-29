@@ -26,9 +26,10 @@ docker run --rm -it -p 3000:3000 -p 8000:8000 publioblenilio/aromadr
 
 Then run this project with:
 
-```bash
-cd /Users/yanxu/Downloads/Testing\ Agent\ Project/aromadr-java-test-repair-mvp
-AROMADR_API_URL="http://localhost:3000" python3 -m test_repair_mvp --benchmark demo/config/benchmark.json --run-dir .mvp_runs/benchmark-aromadr
+```powershell
+cd path\to\Agentic-Test-Repair\aromadr-java-test-repair-mvp
+$env:AROMADR_API_URL = "http://localhost:3000"
+python -m test_repair_mvp --benchmark demo/config/benchmark.json --run-dir .mvp_runs/benchmark-aromadr
 ```
 
 If Docker is not installed, the project still runs with the lightweight fallback detector. Reports will mark AromaDr as unavailable.
@@ -84,7 +85,9 @@ The MVP normalizes each smell into `SmellFinding`:
 - `message`: concise repair context
 - `source`: `AromaDr`
 
-The master evaluator and feedback generator consume only the normalized `SmellReport`, so the rest of the repair loop remains independent of AromaDr's internal response format.
+The evaluator and feedback generator consume the normalized `SmellReport`.
+When AromaDr is available, only its findings are authoritative for acceptance
+and feedback; lightweight findings remain diagnostic.
 
 ## Fallback Behavior
 
@@ -92,11 +95,11 @@ When `AROMADR_API_URL` is not set, or when the API cannot be reached:
 
 1. The report records `aroma_dr_available=false`.
 2. The local lightweight JUnit detector runs.
-3. The goal-driven loop remains executable for demos and development.
+3. The goal-driven loop remains executable for demos and plumbing development.
 
-This preserves the professor's requested architecture while avoiding a hard dependency on a running AromaDr service during local development.
+DeepSeek repair eligibility for DataTD still requires AromaDr to be available.
 
-## Repair Strategies Implemented
+## Deterministic Template Strategies
 
 The repair loop now handles the AromaDr smells observed in the benchmark:
 
@@ -107,6 +110,9 @@ The repair loop now handles the AromaDr smells observed in the benchmark:
 | `AssertionRoulette` | Split multi-assertion tests into focused one-assertion tests, and use message-first `Assert` assertions so AromaDr can read the assertion message. |
 | `ExceptionHandling` | Move `try/catch` exception verification into a non-test helper method, then assert the helper result from the test method. This preserves behavior checking while keeping the test body free of exception-handling statements. |
 
+The DeepSeek backend is not limited to these templates. It receives the real
+candidate findings and is accepted only after Maven and AromaDr validation.
+
 Current AromaDr-backed benchmark result:
 
 ```text
@@ -116,3 +122,7 @@ Initial smells: 15
 Final smells: 0
 Smell delta: 15
 ```
+
+The DataTD development cohort separately screened 10 candidates and accepted
+all 4 strictly eligible DeepSeek repairs, reducing authoritative AromaDr
+findings from 136 to 0. It is development data, not held-out evaluation.

@@ -1,5 +1,10 @@
 # Project Handoff Notes for Windows
 
+> Historical handoff (2026-07-20). DeepSeek and the DataTD repair adapter are
+> now implemented. Use
+> `aromadr-java-test-repair-mvp/docs/PROJECT_COMPLETION_TODO.md` for current
+> status and remaining delivery work.
+
 Date: 2026-07-20
 Repository: https://github.com/AlanX-Yan/Agentic-test-repair
 Current branch: `main`

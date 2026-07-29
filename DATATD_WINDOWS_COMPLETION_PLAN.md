@@ -1,5 +1,10 @@
 # DataTD Windows Completion Plan
 
+> Historical plan (2026-07-28). Dataset inspection, candidate selection, the
+> repair adapter, and the DeepSeek backend are complete. Use
+> `aromadr-java-test-repair-mvp/docs/PROJECT_COMPLETION_TODO.md` as the active
+> completion plan.
+
 Date: 2026-07-28
 Repository: https://github.com/AlanX-Yan/Agentic-test-repair
 Main project directory: `aromadr-java-test-repair-mvp/`
@@ -32,12 +37,12 @@ Completed:
 - The curated experiment validated the pipeline on real Maven projects before
   DataTD was available.
 
-Important limitation:
+Historical limitation at the time of this plan:
 
-- The current repair agent is still deterministic/template-based.
-- A real coding-agent backend has not been integrated yet.
-- The dataset scanner identifies repair candidates, but the full repair loop has
-  not yet been run systematically on DataTD.
+- The repository originally had only a deterministic template agent.
+- DeepSeek V4 Pro and the DataTD repair loop have since been integrated and
+  validated on a development cohort.
+- Formal held-out evaluation and final reporting remain incomplete.
 
 ## 2. Latest Known Curated Maven Result
 

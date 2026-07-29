@@ -19,6 +19,9 @@ class ProjectTask:
     source_roots: tuple[Path, ...] = field(default_factory=tuple)
     test_runner_class: str | None = None
     max_accepted_smells: int = 0
+    maven_repo: Path | None = None
+    command_timeout_seconds: int = 180
+    maven_test_compile_first: bool = False
 
 
 @dataclass(frozen=True)
@@ -68,6 +71,23 @@ class SmellReport:
     def by_type(self) -> dict[str, int]:
         counts: dict[str, int] = {}
         for finding in self.findings:
+            counts[finding.smell_type] = counts.get(finding.smell_type, 0) + 1
+        return counts
+
+    def findings_from(self, source: str) -> list[SmellFinding]:
+        expected = source.casefold()
+        return [
+            finding
+            for finding in self.findings
+            if finding.source.casefold() == expected
+        ]
+
+    def count_from(self, source: str) -> int:
+        return len(self.findings_from(source))
+
+    def by_type_from(self, source: str) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for finding in self.findings_from(source):
             counts[finding.smell_type] = counts.get(finding.smell_type, 0) + 1
         return counts
 

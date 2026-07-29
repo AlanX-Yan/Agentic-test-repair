@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import shutil
+import os
 import re
+import shutil
 from pathlib import Path
 
 from .models import CommandResult, ExecutionResult, ProjectTask
@@ -13,11 +14,31 @@ class JavaExecutionHarness:
 
     def run_tests(self, task: ProjectTask) -> ExecutionResult:
         if task.build_tool == "maven":
-            local_repo = task.project_root / ".m2" / "repository"
-            return self._run_build_tool(
+            local_repo = task.maven_repo or task.project_root / ".m2" / "repository"
+            command_prefix = [
+                self._maven_bin(),
+                f"-Dmaven.repo.local={local_repo}",
+            ]
+            if task.maven_test_compile_first:
+                compile_execution = self._run_build_tool(
+                    task,
+                    command_prefix + ["test-compile"],
+                )
+                if not compile_execution.compiled:
+                    return compile_execution
+            test_execution = self._run_build_tool(
                 task,
-                [self._maven_bin(), f"-Dmaven.repo.local={local_repo}", "test"],
+                command_prefix + ["test"],
             )
+            if task.maven_test_compile_first:
+                return ExecutionResult(
+                    compiled=True,
+                    passed=test_execution.passed,
+                    command_result=test_execution.command_result,
+                    test_count=test_execution.test_count,
+                    failure_count=test_execution.failure_count,
+                )
+            return test_execution
         if task.build_tool == "gradle":
             return self._run_build_tool(task, ["gradle", "test"])
         return self._run_javac_demo(task)
@@ -27,7 +48,11 @@ class JavaExecutionHarness:
             result = CommandResult(command, task.project_root, 127, "", f"{command[0]} is not installed.")
             return ExecutionResult(compiled=False, passed=False, command_result=result)
 
-        result = run_command(command, task.project_root, timeout_seconds=180)
+        result = run_command(
+            command,
+            task.project_root,
+            timeout_seconds=task.command_timeout_seconds,
+        )
         return ExecutionResult(
             compiled=result.ok,
             passed=result.ok,
@@ -44,10 +69,17 @@ class JavaExecutionHarness:
             return configured
 
         workspace_root = Path(__file__).resolve().parents[2]
-        local_maven = workspace_root / "tools" / "apache-maven-3.9.16" / "bin" / "mvn"
+        maven_executable = "mvn.cmd" if os.name == "nt" else "mvn"
+        local_maven = (
+            workspace_root
+            / "tools"
+            / "apache-maven-3.9.16"
+            / "bin"
+            / maven_executable
+        )
         if local_maven.exists():
             return str(local_maven)
-        return "mvn"
+        return maven_executable
 
     def _run_javac_demo(self, task: ProjectTask) -> ExecutionResult:
         classes_dir = task.project_root / "build" / "classes"
