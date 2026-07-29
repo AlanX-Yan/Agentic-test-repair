@@ -144,7 +144,7 @@ Complete when every final claim is regenerable from experiment artifacts.
 - [x] Confirm DataTD, `.m2`, `.mvp_runs`, and raw logs remain ignored.
 - [x] Publish the environment and command manifest.
 - [x] Provide mock HTTP fixtures so tests never incur API cost.
-- [ ] Run tests from a clean checkout/worktree after the publication commit.
+- [x] Run tests from a clean checkout/worktree after the publication commit.
 - [x] Declare the supported Python version and dependency metadata.
 - [x] Update stale top-level handoff/completion documents.
 
@@ -153,11 +153,11 @@ Complete when every final claim is regenerable from experiment artifacts.
 - [x] Review the worktree scope; listed changes belong to the DataTD/DeepSeek project.
 - [x] Run the full test suite and `git diff --check`.
 - [x] Inspect `git status` for secrets, datasets, caches, and generated logs.
-- [ ] Commit source, tests, docs, and small summaries intentionally.
+- [x] Commit source, tests, docs, and small summaries intentionally.
 - [ ] Push the selected branch to GitHub.
 - [ ] Verify GitHub Markdown links and rendering.
-- [ ] Prepare advisor-facing results and limitation talking points.
-- [ ] Tag or record the exact evaluated commit.
+- [x] Prepare advisor-facing results and limitation talking points.
+- [x] Record publication baseline commit `f7b63a1` for the evaluated artifacts.
 
 ## Definition of Done
 
