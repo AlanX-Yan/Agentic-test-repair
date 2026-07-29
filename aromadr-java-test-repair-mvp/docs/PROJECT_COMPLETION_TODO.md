@@ -154,8 +154,8 @@ Complete when every final claim is regenerable from experiment artifacts.
 - [x] Run the full test suite and `git diff --check`.
 - [x] Inspect `git status` for secrets, datasets, caches, and generated logs.
 - [x] Commit source, tests, docs, and small summaries intentionally.
-- [ ] Push the selected branch to GitHub.
-- [ ] Verify GitHub Markdown links and rendering.
+- [x] Push the selected branch to GitHub.
+- [x] Verify GitHub Markdown links and rendering.
 - [x] Prepare advisor-facing results and limitation talking points.
 - [x] Record publication baseline commit `f7b63a1` for the evaluated artifacts.
 
