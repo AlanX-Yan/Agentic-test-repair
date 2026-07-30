@@ -14,7 +14,8 @@ def load_csv(path: Path) -> list[dict[str, str]]:
 
 def relative_test_path(row: dict[str, str]) -> str:
     full = row["test_file"].replace("\\", "/")
-    marker = f"/{row['project_id']}/"
+    project_id = row["project_id"].replace("\\", "/")
+    marker = f"/{project_id}/"
     index = full.casefold().find(marker.casefold())
     return full[index + len(marker) :] if index >= 0 else Path(full).name
 
@@ -46,11 +47,19 @@ def main() -> None:
     manifest: list[dict[str, object]] = []
     for candidate_text, results_text in args.source:
         candidates = load_csv(Path(candidate_text))
-        by_test = {row["test_file"].casefold(): row for row in candidates}
+        by_test: dict[str, dict[str, str]] = {}
+        for row in candidates:
+            by_test[row["test_file"].casefold()] = row
+            by_test[str(Path(row["test_file"]).resolve()).casefold()] = row
         for result in load_csv(Path(results_text)):
             if result.get("eligible", "").casefold() != "true":
                 continue
-            row = by_test[result["source_test_file"].casefold()]
+            result_path = result["source_test_file"]
+            row = by_test.get(result_path.casefold()) or by_test.get(
+                str(Path(result_path).resolve()).casefold()
+            )
+            if row is None:
+                continue
             selected.append(row)
             source_path = Path(row["test_file"])
             manifest.append(

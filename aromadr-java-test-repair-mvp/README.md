@@ -185,23 +185,25 @@ human quality gate; see `docs/SEMANTIC_REVIEW.md`.
 
 ### DeepSeek V4 Pro Extension Evaluation
 
-The independently frozen `deepseek-v2` extension used the same repair
-semantics and the `deepseek-v4-pro` model:
+Three independently frozen protocols used the same repair semantics and the
+`deepseek-v4-pro` model. The final formal evaluation contains exactly 100
+strict-eligible candidates:
 
-- 26 additional eligible candidates from 10 projects
-- 24 accepted and 2 rejected/rolled back: 92.3% success
-- 82 initial AromaDr findings reduced to 2
-- 35 model calls, 253,810 tokens, estimated USD 0.15097848
-- no compile or test regression in the v2 final proposals
+- 85 accepted and 15 rejected/rolled back: 85.0% automated success
+- 484 initial AromaDr findings reduced to 30 in last proposals; all remaining
+  findings were in rejected proposals
+- 146 model calls, 1,838,056 tokens, estimated USD 0.99152858
+- 55 first-attempt successes and 30 feedback-retry successes
 - no original DataTD file changed
 
-Combined with v1, the formal result is 39/43 accepted (90.7%), with 257
-initial findings reduced to 8, 59 model calls, 479,788 tokens, and estimated
-USD 0.28903485. The requested total of 50 was not reached because strict
-dataset-wide screening found only 26 new candidates that passed clean
-baseline compilation, tests, and AromaDr eligibility. See
-`docs/EVALUATION_PROTOCOL_V2.md`, `docs/SEMANTIC_REVIEW_V2.md`, and
-`docs/results/formal-combined/`.
+V3 contributed 57 candidates across Java 8, 11, and 17, selected using exact
+commits and Java versions from an advisor-provided DataTD benchmark list. Its
+automated result was 46/57 (80.7%) at USD 0.70249373. Manual review found that
+the structural gate can still accept semantically weak changes, so 85/100 is
+reported specifically as the automated endpoint.
+
+See `docs/EVALUATION_PROTOCOL_V3.md`, `docs/REPAIR_EVALUATION.md`,
+`docs/SEMANTIC_REVIEW_V3.md`, and `docs/results/formal-100/`.
 
 ## AromaDr Integration
 
@@ -274,4 +276,5 @@ docs/
 - The current deterministic repair templates address the AromaDr smells observed so far: `UnknownTest`, `MagicNumberTest`, `AssertionRoulette`, and `ExceptionHandling`.
 - When AromaDr is available, its findings are authoritative for acceptance and feedback; lightweight findings remain diagnostic.
 - Candidate repair changes only the authorized test file in an isolated copy; rejected changes are snapshotted and rolled back.
-- Held-out evaluation, budget/resume controls, and final research reports remain before delivery. JaCoCo and PIT are optional extensions.
+- The 100-candidate held-out evaluation, budget controls, rollback, and final
+  result summaries are complete. JaCoCo and PIT remain optional extensions.

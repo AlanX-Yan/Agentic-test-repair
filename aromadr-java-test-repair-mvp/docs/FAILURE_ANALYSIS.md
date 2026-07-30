@@ -1,5 +1,23 @@
 # Failure Analysis
 
+## V3 Extension Failures
+
+The `deepseek-v3` extension accepted 46 of 57 candidates and rejected 11.
+All 11 rejected proposals were rolled back. Three final proposals failed
+compilation; the other eight failed to reach the zero-AromaDr acceptance gate
+within two proposals. No v3 candidate produced a final test regression after
+successful compilation.
+
+The Java 8, 11, and 17 groups rejected 2/7, 8/27, and 1/23 respectively. The
+published project and smell-type CSV files preserve the distribution without
+local paths.
+
+Manual review also identified a separate class of false-positive success:
+some automatically accepted repairs added `assertTrue(true)` or weakened an
+existing behavioral/timing check. These are not counted as protocol failures
+because the automated gate was frozen before execution, but they are reported
+as manual quality failures in `docs/SEMANTIC_REVIEW_V3.md`.
+
 ## Held-Out Repair Failures
 
 Two of 17 held-out candidates were rejected after two model proposals. Both
@@ -72,8 +90,10 @@ failures. They were never sent to the model.
 
 ## Threats to Validity
 
-- The evaluation is a controlled DataTD sample, not the entire 30 GB dataset.
-- The held-out cohort has 17 candidates and only four original smell categories.
+- The evaluation is a controlled 100-candidate DataTD sample, not every file
+  in the 30 GB dataset.
+- Cohorts were frozen in three stages and are not statistically independent
+  samples of all DataTD projects.
 - Projects and smell categories are not statistically independent.
 - Test-suite pass status does not guarantee full semantic equivalence.
 - DeepSeek service behavior can vary despite a frozen prompt.
@@ -85,6 +105,6 @@ failures. They were never sent to the model.
 - Add Java parser validation before Maven.
 - Add assertion-preservation checks to reject obvious semantic weakening.
 - Add JaCoCo and PIT on representative accepted repairs.
-- Increase the held-out cohort and diversify rare smell categories.
+- Add a prespecified semantic gate and diversify rare smell categories.
 - Run from a single uninterrupted worker or external job runner instead of an
   interactive tool timeout window.

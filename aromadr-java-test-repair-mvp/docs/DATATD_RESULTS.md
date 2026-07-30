@@ -1,18 +1,27 @@
 # DataTD Results
 
-Date: 2026-07-30
+Date: 2026-07-31
 
 ## Scope
 
 This project uses a controlled sample from DataTD rather than claiming a full
-30 GB, all-project evaluation. A 40-project Windows batch produced 83
+30 GB, all-project evaluation. The final formal sample contains 100 strictly
+eligible candidates across three independently frozen protocols. A 40-project
+Windows batch initially produced 83
 AromaDr-eligible candidate rows. A deterministic 40-file subset covered all ten
 observed AromaDr smell types and limited each project to at most two files.
 
 The first ten subset rows were development data. Candidates 11–40 were screened
 without API calls. Because they produced only 11 eligible tests, six additional
 eligible replacements were selected deterministically from unused rows in the
-83-candidate pool. The final held-out cohort contained 17 tests.
+83-candidate pool. This formed the 17-test v1 cohort. V2 added 26 candidates.
+V3 used an advisor-provided benchmark list, exact benchmark commits, and
+advisor-specified Java versions to add 57 more candidates.
+
+The advisor workbook itself is a local screening input and is not published.
+When extracted DataTD directories omitted tracked production files, complete
+isolated worktrees were reconstructed from the exact local Git commit before
+baseline validation.
 
 ## Dataset Preparation
 
@@ -78,6 +87,30 @@ record.
 The two rejected proposals were restored from their original snapshots. Their
 failed proposal findings are retained for failure analysis but are not applied
 to DataTD or counted as successful smell reduction.
+
+## Final Combined Cohort
+
+| Metric | Result |
+| --- | ---: |
+| Eligible repair attempts | 100 |
+| Accepted | 85 |
+| Rejected and rolled back | 15 |
+| Success rate | 85.0% |
+| First-attempt accepted | 55 |
+| Feedback-retry accepted | 30 |
+| Initial AromaDr findings | 484 |
+| Findings in last proposals | 30 |
+| Model calls | 146 |
+| Tokens | 1,838,056 |
+| Estimated API cost | USD 0.99152858 |
+| Original DataTD files changed | 0 |
+
+The v3 extension spans Java 8, 11, and 17 and contributes 57 candidates from
+23 project/module IDs. Compact path-neutral v3 and combined results are in
+`docs/results/deepseek-v3/` and `docs/results/formal-100/`.
+
+All 30 remaining findings were measured in proposals that failed the frozen
+gate and were subsequently rolled back; accepted proposals had zero findings.
 
 ## Reproducibility
 

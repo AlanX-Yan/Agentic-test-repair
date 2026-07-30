@@ -245,7 +245,10 @@ def _task_for_test_file(project_scan: MavenProjectScan, test_file: Path) -> Proj
 
 
 def _project_id(project_root: Path, dataset_root: Path) -> str:
-    relative = project_root.resolve().relative_to(dataset_root.resolve())
+    try:
+        relative = project_root.relative_to(dataset_root)
+    except ValueError:
+        relative = project_root.resolve().relative_to(dataset_root.resolve())
     text = str(relative) if str(relative) != "." else project_root.name
     return text.replace("/", "__")
 

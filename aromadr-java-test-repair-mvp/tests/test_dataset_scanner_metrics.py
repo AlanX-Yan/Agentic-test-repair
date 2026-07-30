@@ -5,11 +5,21 @@ from test_repair_mvp.dataset_scanner import (
     TestFileScan,
     _build_summary,
     _command_problem,
+    _project_id,
 )
 from test_repair_mvp.models import CommandResult, SmellFinding, SmellReport
 
 
 class DatasetScannerSourceMetricsTest(TestCase):
+    def test_project_id_preserves_lexical_junction_name(self) -> None:
+        dataset_root = Path("candidate-pool")
+        project_root = dataset_root / "advisor-project"
+
+        self.assertEqual(
+            "advisor-project",
+            _project_id(project_root, dataset_root),
+        )
+
     def test_command_problem_accepts_missing_captured_output(self) -> None:
         result = CommandResult(
             command=["mvn", "test"],

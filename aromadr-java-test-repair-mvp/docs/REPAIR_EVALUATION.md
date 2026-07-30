@@ -1,12 +1,44 @@
 # DeepSeek Repair Evaluation
 
+## Final 100-Candidate Result
+
+The formal evaluation now contains exactly 100 strict-eligible candidates:
+17 from `deepseek-v1`, 26 from `deepseek-v2`, and 57 from `deepseek-v3`.
+
+| Metric | V1 | V2 | V3 | Combined |
+| --- | ---: | ---: | ---: | ---: |
+| Eligible candidates | 17 | 26 | 57 | 100 |
+| Accepted | 15 | 24 | 46 | 85 |
+| Success rate | 88.2% | 92.3% | 80.7% | 85.0% |
+| First-attempt accepted | 10 | 17 | 28 | 55 |
+| Feedback-retry accepted | 5 | 7 | 18 | 30 |
+| AromaDr findings before | 175 | 82 | 227 | 484 |
+| AromaDr findings after | 6 | 2 | 22 | 30 |
+| Model calls | 24 | 35 | 87 | 146 |
+| Recorded tokens | 225,978 | 253,810 | 1,358,268 | 1,838,056 |
+| Estimated API cost (USD) | 0.13805637 | 0.15097848 | 0.70249373 | 0.99152858 |
+
+Every candidate passed baseline eligibility before it was sent to DeepSeek.
+Accepted proposals compiled, passed the existing Maven suite, and had zero
+authoritative AromaDr findings. Rejected proposals were restored from their
+snapshots. The “findings after” row measures each last proposal before rollback;
+all 30 remaining findings belong to rejected proposals. The original DataTD
+working trees remained unchanged.
+
+The automated 85/100 result is the primary prespecified endpoint. It does not
+establish full semantic equivalence. A risk-informed cross-version review of 12
+accepted v3 diffs found six clean passes and six manual quality failures,
+principally constant-true assertions or weakened checks. This ratio is not a
+random-sample estimate. See `docs/SEMANTIC_REVIEW_V3.md`.
+
 ## V2 Extension and Combined Formal Result
 
 An independent `deepseek-v2` extension screened the extracted DataTD corpus
 and froze 26 additional strict-eligible candidates from 10 projects. The
 requested total was 50, but only 26 new candidates passed clean baseline
-compilation, tests, and AromaDr eligibility. The evidence-supported combined
-formal denominator is therefore 43.
+compilation, tests, and AromaDr eligibility, giving an interim denominator of
+43. The later advisor-guided v3 protocol extended the final denominator to
+100.
 
 | Metric | V1 | V2 extension | Combined |
 | --- | ---: | ---: | ---: |
