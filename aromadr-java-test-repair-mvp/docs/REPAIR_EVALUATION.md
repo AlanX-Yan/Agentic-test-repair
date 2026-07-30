@@ -1,5 +1,32 @@
 # DeepSeek Repair Evaluation
 
+## V2 Extension and Combined Formal Result
+
+An independent `deepseek-v2` extension screened the extracted DataTD corpus
+and froze 26 additional strict-eligible candidates from 10 projects. The
+requested total was 50, but only 26 new candidates passed clean baseline
+compilation, tests, and AromaDr eligibility. The evidence-supported combined
+formal denominator is therefore 43.
+
+| Metric | V1 | V2 extension | Combined |
+| --- | ---: | ---: | ---: |
+| Eligible candidates | 17 | 26 | 43 |
+| Accepted | 15 | 24 | 39 |
+| Success rate | 88.2% | 92.3% | 90.7% |
+| First-attempt accepted | 10 | 17 | 27 |
+| Feedback-retry accepted | 5 | 7 | 12 |
+| AromaDr findings before | 175 | 82 | 257 |
+| AromaDr findings after | 6 | 2 | 8 |
+| Model calls | 24 | 35 | 59 |
+| Recorded tokens | 225,978 | 253,810 | 479,788 |
+| Estimated API cost (USD) | 0.13805637 | 0.15097848 | 0.28903485 |
+
+The v2 batch had no compile or test regressions in its final proposals. Two
+proposals retained one AromaDr finding each and were rolled back. Manual
+semantic review of ten accepted v2 diffs found eight clean passes, two passes
+with caution, and no manual quality failures. See
+`docs/SEMANTIC_REVIEW_V2.md` and `docs/EVALUATION_PROTOCOL_V2.md`.
+
 ## Research Question
 
 Can a goal-driven coding backend remove AromaDr findings from real DataTD Java

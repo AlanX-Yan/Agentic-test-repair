@@ -357,7 +357,7 @@ def _command_problem(result: CommandResult | None) -> str:
         return ""
     if result.return_code == 124:
         return "timeout"
-    text = "\n".join([result.stderr, result.stdout])
+    text = "\n".join([result.stderr or "", result.stdout or ""])
     for line in text.splitlines():
         stripped = line.strip()
         if stripped.startswith("[ERROR]"):

@@ -1,11 +1,26 @@
 from pathlib import Path
 from unittest import TestCase
 
-from test_repair_mvp.dataset_scanner import TestFileScan, _build_summary
-from test_repair_mvp.models import SmellFinding, SmellReport
+from test_repair_mvp.dataset_scanner import (
+    TestFileScan,
+    _build_summary,
+    _command_problem,
+)
+from test_repair_mvp.models import CommandResult, SmellFinding, SmellReport
 
 
 class DatasetScannerSourceMetricsTest(TestCase):
+    def test_command_problem_accepts_missing_captured_output(self) -> None:
+        result = CommandResult(
+            command=["mvn", "test"],
+            cwd=Path("."),
+            return_code=1,
+            stdout=None,
+            stderr=None,
+        )
+
+        self.assertEqual("", _command_problem(result))
+
     def test_source_metrics_and_candidate_flags_are_separate(self) -> None:
         report = SmellReport(
             findings=[

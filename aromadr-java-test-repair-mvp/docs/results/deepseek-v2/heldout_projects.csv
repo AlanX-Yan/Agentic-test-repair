@@ -1,0 +1,11 @@
+project_id,attempts,accepted,success_rate
+BananaAppleBanana-java-26,2,1,0.5
+Neloop-jaclp,1,1,1.0
+ace-lectures-re21-devops,1,1,1.0
+dm-drogeriemarkt-retrylib-spring-boot-starter,3,2,0.6666666666666666
+jashaj-spring-boot-thymeleaf-fragments,3,3,1.0
+kriscfoster-spring-boot-testing-pyramid,1,1,1.0
+rodrigovp-fragmentos,4,4,1.0
+spring-cloud-services-samples-cook,5,5,1.0
+sritejakv-splitwise-java,2,2,1.0
+st-tu-dresden-guestbook,4,4,1.0

@@ -31,6 +31,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Freeze eligible held-out candidates.")
     parser.add_argument("output_csv", type=Path)
     parser.add_argument("output_manifest", type=Path)
+    parser.add_argument("--protocol", default="deepseek-v1")
+    parser.add_argument("--development-rows-excluded", type=int, default=10)
     parser.add_argument(
         "--source",
         nargs=2,
@@ -69,8 +71,8 @@ def main() -> None:
     args.output_manifest.write_text(
         json.dumps(
             {
-                "protocol": "deepseek-v1",
-                "development_rows_excluded": 10,
+                "protocol": args.protocol,
+                "development_rows_excluded": args.development_rows_excluded,
                 "candidate_count": len(selected),
                 "candidates": manifest,
             },

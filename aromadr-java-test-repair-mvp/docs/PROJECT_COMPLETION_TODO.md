@@ -4,6 +4,26 @@ Last updated: 2026-07-30
 
 Status: `[x]` complete, `[-]` in progress, `[ ]` pending, `[~]` optional.
 
+## DeepSeek V2 Extension
+
+- [x] Expand baseline-only discovery across the extracted DataTD corpus.
+- [x] Freeze 26 additional strict-eligible candidates from 10 projects.
+- [x] Verify zero overlap with the v1 held-out cohort and zero v2 duplicates.
+- [x] Split the frozen cohort into 24 JDK 21 and 2 JDK 11 candidates.
+- [x] Freeze `deepseek-v2` semantics and the CNY 30 / USD 4.00 conservative
+  execution boundary in `docs/EVALUATION_PROTOCOL_V2.md`.
+- [x] Inject the DeepSeek credentials into the execution environment without
+  storing them in repository artifacts.
+- [x] Run all 26 v2 candidates to terminal outcomes.
+- [x] Combine v1 and v2 formal metrics using the achieved denominator of 43.
+- [x] Semantically review representative accepted v2 diffs.
+- [x] Update reports, archive secret-free summaries, run all tests, and
+  publish the extension to the existing GitHub pull request.
+
+The requested formal total was 50. Strict screening produced only 26 new
+eligible candidates, so the evidence-supported total is 43. The remaining
+seven must not be filled with baseline-failing candidates.
+
 ## Current Verified Baseline
 
 - [x] Maven/DataTD scanner and AromaDr integration

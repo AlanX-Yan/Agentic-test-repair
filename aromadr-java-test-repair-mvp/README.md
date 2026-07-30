@@ -183,6 +183,26 @@ The exact frozen command and hashes are documented in
 clean passes, one minor caution, and two repairs that should fail a stricter
 human quality gate; see `docs/SEMANTIC_REVIEW.md`.
 
+### DeepSeek V4 Pro Extension Evaluation
+
+The independently frozen `deepseek-v2` extension used the same repair
+semantics and the `deepseek-v4-pro` model:
+
+- 26 additional eligible candidates from 10 projects
+- 24 accepted and 2 rejected/rolled back: 92.3% success
+- 82 initial AromaDr findings reduced to 2
+- 35 model calls, 253,810 tokens, estimated USD 0.15097848
+- no compile or test regression in the v2 final proposals
+- no original DataTD file changed
+
+Combined with v1, the formal result is 39/43 accepted (90.7%), with 257
+initial findings reduced to 8, 59 model calls, 479,788 tokens, and estimated
+USD 0.28903485. The requested total of 50 was not reached because strict
+dataset-wide screening found only 26 new candidates that passed clean
+baseline compilation, tests, and AromaDr eligibility. See
+`docs/EVALUATION_PROTOCOL_V2.md`, `docs/SEMANTIC_REVIEW_V2.md`, and
+`docs/results/formal-combined/`.
+
 ## AromaDr Integration
 
 The preferred integration is AromaDr's HTTP API. Start AromaDr separately, then set `AROMADR_API_URL`:

@@ -35,8 +35,14 @@ def aromadr_counts(report: dict) -> dict[str, int]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze a repair evaluation run.")
-    parser.add_argument("run_dir", type=Path)
+    parser.add_argument(
+        "run_dir",
+        type=Path,
+        nargs="+",
+        help="One or more compatible repair run directories to combine.",
+    )
     parser.add_argument("output_dir", type=Path)
+    parser.add_argument("--protocol", default="deepseek-v1")
     parser.add_argument(
         "--override",
         action="append",
@@ -51,69 +57,76 @@ def main() -> None:
         index, path = text.split("=", 1)
         overrides[int(index)] = Path(path)
 
-    main_rows = read_csv(args.run_dir / "candidate_repair_results.csv")
     analyzed: list[dict] = []
     smell_stats: dict[str, dict[str, int]] = defaultdict(
         lambda: {"candidate_attempts": 0, "accepted_candidates": 0, "before": 0, "after": 0}
     )
 
-    for index, main_row in enumerate(main_rows, start=1):
-        if index in overrides:
-            run_root = overrides[index]
-            row = read_csv(run_root / "candidate_repair_results.csv")[0]
-            task_dir = run_root / "tasks" / "001"
-            rerun = True
-        else:
-            run_root = args.run_dir
-            row = main_row
-            task_dir = run_root / "tasks" / f"{index:03d}"
-            rerun = False
+    global_index = 0
+    for primary_run_root in args.run_dir:
+        main_rows = read_csv(primary_run_root / "candidate_repair_results.csv")
+        for run_index, main_row in enumerate(main_rows, start=1):
+            global_index += 1
+            if global_index in overrides:
+                run_root = overrides[global_index]
+                row = read_csv(run_root / "candidate_repair_results.csv")[0]
+                task_dir = run_root / "tasks" / "001"
+                rerun = True
+            else:
+                run_root = primary_run_root
+                row = main_row
+                task_dir = run_root / "tasks" / f"{run_index:03d}"
+                rerun = False
 
-        attempts = int(row.get("attempts") or 0)
-        artifacts = task_dir / "artifacts" / "repair"
-        before = aromadr_counts(read_json(artifacts / "iteration-0" / "smell_report.json"))
-        after = aromadr_counts(
-            read_json(artifacts / f"iteration-{attempts}" / "smell_report.json")
-        )
-        accepted = row.get("accepted", "").casefold() == "true"
-        for smell_type, count in before.items():
-            stats = smell_stats[smell_type]
-            stats["candidate_attempts"] += 1
-            stats["accepted_candidates"] += int(accepted)
-            stats["before"] += count
-            stats["after"] += after.get(smell_type, 0)
+            attempts = int(row.get("attempts") or 0)
+            artifacts = task_dir / "artifacts" / "repair"
+            before = aromadr_counts(
+                read_json(artifacts / "iteration-0" / "smell_report.json")
+            )
+            after = aromadr_counts(
+                read_json(artifacts / f"iteration-{attempts}" / "smell_report.json")
+            )
+            accepted = row.get("accepted", "").casefold() == "true"
+            for smell_type, count in before.items():
+                stats = smell_stats[smell_type]
+                stats["candidate_attempts"] += 1
+                stats["accepted_candidates"] += int(accepted)
+                stats["before"] += count
+                stats["after"] += after.get(smell_type, 0)
 
-        source = Path(row["source_test_file"])
-        snapshot = task_dir / "original_test.java"
-        analyzed.append(
-            {
-                "index": index,
-                "project_id": row["project_id"],
-                "test_file": source.name,
-                "accepted": accepted,
-                "attempts": attempts,
-                "compiled": row.get("compiled", "").casefold() == "true",
-                "tests_pass": row.get("tests_pass", "").casefold() == "true",
-                "aromadr_before": sum(before.values()),
-                "aromadr_after": sum(after.values()),
-                "smell_types_before": "; ".join(
-                    f"{key}={value}" for key, value in sorted(before.items())
-                ),
-                "model_calls": int(row.get("model_calls") or 0),
-                "total_tokens": int(row.get("total_tokens") or 0),
-                "estimated_cost_usd": float(row.get("estimated_cost_usd") or 0),
-                "elapsed_seconds": float(row.get("elapsed_seconds") or 0),
-                "status": row.get("status", ""),
-                "infrastructure_rerun": rerun,
-                "original_datatd_unchanged": (
-                    source.exists() and snapshot.exists() and sha256(source) == sha256(snapshot)
-                ),
-            }
-        )
+            source = Path(row["source_test_file"])
+            snapshot = task_dir / "original_test.java"
+            analyzed.append(
+                {
+                    "index": global_index,
+                    "project_id": row["project_id"],
+                    "test_file": source.name,
+                    "accepted": accepted,
+                    "attempts": attempts,
+                    "compiled": row.get("compiled", "").casefold() == "true",
+                    "tests_pass": row.get("tests_pass", "").casefold() == "true",
+                    "aromadr_before": sum(before.values()),
+                    "aromadr_after": sum(after.values()),
+                    "smell_types_before": "; ".join(
+                        f"{key}={value}" for key, value in sorted(before.items())
+                    ),
+                    "model_calls": int(row.get("model_calls") or 0),
+                    "total_tokens": int(row.get("total_tokens") or 0),
+                    "estimated_cost_usd": float(row.get("estimated_cost_usd") or 0),
+                    "elapsed_seconds": float(row.get("elapsed_seconds") or 0),
+                    "status": row.get("status", ""),
+                    "infrastructure_rerun": rerun,
+                    "original_datatd_unchanged": (
+                        source.exists()
+                        and snapshot.exists()
+                        and sha256(source) == sha256(snapshot)
+                    ),
+                }
+            )
 
     accepted_count = sum(item["accepted"] for item in analyzed)
     summary = {
-        "protocol": "deepseek-v1",
+        "protocol": args.protocol,
         "candidate_count": len(analyzed),
         "accepted_count": accepted_count,
         "rejected_count": len(analyzed) - accepted_count,
