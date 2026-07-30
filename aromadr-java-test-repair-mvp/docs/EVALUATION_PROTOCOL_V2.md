@@ -105,14 +105,14 @@ CNY 30 at execution time, the run must stop before the first request.
 ## Formal Run Groups
 
 Both groups use the same external Maven repository at
-`C:\Users\user\.m2\deepseek-v2-repository`; the path is recorded in raw
+`$env:USERPROFILE\.m2\deepseek-v2-repository`; the path is recorded in raw
 environment evidence but removed from publishable artifacts.
 
 ```powershell
 python -m test_repair_mvp `
   --repair-candidates .mvp_runs\deepseek-v2-cohort\jdk21_candidates.csv `
   --repair-output-dir .mvp_runs\heldout-evaluation-deepseek-v2-jdk21 `
-  --repair-maven-repo C:\Users\user\.m2\deepseek-v2-repository `
+  --repair-maven-repo "$env:USERPROFILE\.m2\deepseek-v2-repository" `
   --coding-backend deepseek `
   --repair-max-attempts 2 `
   --repair-budget-usd 3.50 `
@@ -126,7 +126,7 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 python -m test_repair_mvp `
   --repair-candidates .mvp_runs\deepseek-v2-cohort\jdk11_candidates.csv `
   --repair-output-dir .mvp_runs\heldout-evaluation-deepseek-v2-jdk11 `
-  --repair-maven-repo C:\Users\user\.m2\deepseek-v2-repository `
+  --repair-maven-repo "$env:USERPROFILE\.m2\deepseek-v2-repository" `
   --coding-backend deepseek `
   --repair-max-attempts 2 `
   --repair-budget-usd 0.50 `

@@ -49,23 +49,9 @@ The scanner writes:
 
 - `dataset_scan_summary.json`: aggregate counts and smell-type distribution.
 - `projects.csv`: one row per Maven project.
-- `test_files.csv`: one row per Java test file, including separate AromaDr and
-  lightweight counts, types, and candidate flags.
+- `test_files.csv`: one row per Java test file.
 - `candidate_tests.csv`: test files that compile, pass, and contain smells.
 - `dataset_candidate_report.md`: Markdown summary for quick inspection.
-
-The summary preserves combined detector fields for backward compatibility and
-also reports source-specific fields:
-
-- `aromadr_total_smells`, `aromadr_smell_types`,
-  `aromadr_smelly_test_file_count`, and `aromadr_candidate_test_count`
-- `lightweight_total_smells`, `lightweight_smell_types`,
-  `lightweight_smelly_test_file_count`, and
-  `lightweight_candidate_test_count`
-
-For advisor-facing DataTD results and repair-subset selection, use the
-AromaDr-only fields. The combined fields describe the complete configured
-detector pipeline and may include additional local heuristic findings.
 
 ## Candidate Rule
 
@@ -90,16 +76,6 @@ configuration.
 When `AROMADR_API_URL` is set and reachable, the scanner uses AromaDr through the
 same detector adapter as the repair loop. If AromaDr is unavailable, it falls
 back to the lightweight local detector so dataset plumbing can still be tested.
-
-When AromaDr is available, the current composite detector keeps both AromaDr
-and lightweight findings. In `test_files.csv`, `aromadr_candidate=True` means
-the file satisfies the selected Maven candidate mode and has at least one
-AromaDr finding. This is the recommended filter for repair evaluation.
-
-The repair adapter applies a stricter runtime gate: DeepSeek is called only
-when the isolated baseline compiles, passes tests, reaches AromaDr, and has at
-least one AromaDr finding. AromaDr findings are then authoritative for repair
-feedback and acceptance.
 
 `projects.csv` also records Maven return codes and short problem labels. A
 return code of `124` means the Maven command timed out.

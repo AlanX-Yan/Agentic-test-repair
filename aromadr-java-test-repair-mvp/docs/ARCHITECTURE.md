@@ -27,17 +27,16 @@ flowchart TD
 
 | Component | File | Responsibility |
 | --- | --- | --- |
-| Coding agent | `test_repair_mvp/agents.py` | Provides the deterministic template backend and the DeepSeek V4 Pro backend with JSON and Java safety validation. |
+| Coding agent | `test_repair_mvp/agents.py` | Generates and repairs tests. The demo uses a deterministic template agent; real versions can call Codex or another coding agent. |
 | Execution harness | `test_repair_mvp/harness.py` | Compiles and runs tests. Supports JUnit-style `javac-demo` now and includes Maven/Gradle command paths for real Java projects. |
 | AromaDr adapter | `test_repair_mvp/detectors.py` | Calls AromaDr's HTTP API through `AROMADR_API_URL`, or an external command through `AROMADR_CMD`, and normalizes findings into `SmellReport`. |
 | Lightweight detector | `test_repair_mvp/detectors.py` | Keeps the MVP runnable without AromaDr. Detects generic names, missing assertions, broad tests, missing exception cases, and mock overuse. |
-| Master evaluator | `test_repair_mvp/feedback.py` | Applies compile/test criteria and treats AromaDr findings as authoritative when AromaDr is available. |
+| Master evaluator | `test_repair_mvp/feedback.py` | Applies success criteria: compile, pass, and no remaining smell findings. |
 | Feedback generator | `test_repair_mvp/feedback.py` | Converts execution and smell findings into actionable repair instructions. |
 | Orchestrator | `test_repair_mvp/orchestrator.py` | Owns the generate -> execute -> detect -> evaluate -> repair loop. |
 | Reporting | `test_repair_mvp/reporting.py` | Saves per-iteration test snapshots, smell reports, execution results, and a final Markdown summary. |
 | Benchmark runner | `test_repair_mvp/benchmark.py` | Runs multiple tasks and creates aggregate before-after CSV, JSON, and Markdown reports. |
 | Dataset scanner | `test_repair_mvp/dataset_scanner.py` | Discovers Maven projects, checks `mvn test-compile` and `mvn test`, batch-scans Java test files with AromaDr, and writes candidate repair reports. |
-| Candidate adapter | `test_repair_mvp/candidate_repair.py` | Copies arbitrary Maven candidates, checks eligibility, runs bounded DeepSeek repairs, validates or rolls back changes, isolates failures, and writes aggregate reports. |
 
 ## Data Contracts
 
@@ -92,8 +91,7 @@ A repaired test suite is accepted when:
 
 1. The generated Java test file compiles.
 2. The generated tests pass.
-3. AromaDr reports no findings when available. Lightweight findings remain
-   diagnostic; the combined fallback count is used only when AromaDr is absent.
+3. The smell detector reports zero remaining findings.
 
 The real research version can tune `max_accepted_smells` and extend these criteria with JaCoCo coverage, changed-line coverage, manual labels, and PIT mutation score.
 
@@ -117,9 +115,7 @@ The real research version can tune `max_accepted_smells` and extend these criter
 - `benchmark_report.md`
 - per-task iteration artifacts under `tasks/<task_id>/artifacts`
 
-The DataTD workflow now also has a fixed 40-file subset. Ten candidates were
-used for development: 4 were eligible and all 4 were accepted. A separate
-held-out evaluation is still required.
+This is the skeleton needed for the proposal's 20 to 40 Java-task evaluation. More tasks can be added by creating another task JSON and adding it to the benchmark config.
 
 ## Dataset Preparation
 
@@ -153,20 +149,11 @@ When `AROMADR_API_URL` is set, the detector sends:
 
 to `POST /file-test-smells/detect` and parses AromaDr's `testSuites[].tests[].testSmells[]` response. If AromaDr is not reachable, the repair loop records that AromaDr was unavailable and uses the lightweight detector to keep development and demos unblocked.
 
-## DeepSeek Repair Path
+## Next Steps Toward Research Prototype
 
-`--coding-backend deepseek` is explicit opt-in. The candidate adapter first
-runs a baseline; only candidates that compile, pass tests, reach AromaDr, and
-contain an AromaDr finding are sent to the API. The backend receives bounded
-authorized context, requires structured JSON, validates the target path,
-package, and public class, and writes the isolated test atomically. Maven and
-AromaDr validate each proposal. Rejected or exceptional changes are restored.
-
-## Next Steps Toward Final Research Delivery
-
-1. Add API budget, accurate cache-aware cost, transient retry, and resume controls.
-2. Freeze the prompt/configuration and exclude development candidates.
-3. Build and run a held-out DataTD evaluation cohort.
-4. Produce per-smell, per-project, failure, runtime, token, and cost analyses.
-5. Add reproducibility manifests and representative semantic reviews.
-6. Publish advisor-facing reports; optionally add JaCoCo and PIT.
+1. Replace the deterministic `TemplateCodingAgent` with a real coding-agent backend.
+2. Confirm AromaDr's exact CLI and output format, then update `_parse_output` in `AromaDrDetector`.
+3. Add real Maven/Gradle sample projects with JUnit 5.
+4. Add JaCoCo coverage collection to `JavaExecutionHarness`.
+5. Add PIT mutation testing as a stretch metric.
+6. Build a benchmark folder with 20 to 40 Java tasks and aggregate reports.

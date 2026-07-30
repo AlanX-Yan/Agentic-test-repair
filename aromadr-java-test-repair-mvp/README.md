@@ -263,7 +263,6 @@ docs/
   CURATED_MAVEN_DATASET.md smaller real-project dataset workflow
   CURATED_MAVEN_RESULTS.md current curated dataset scan summary
   DATASET_SCANNING.md Maven dataset scanner and candidate report notes
-  CANDIDATE_REPAIR.md fixed subset and CSV-to-repair-loop adapter
 ```
 
 ## MVP Boundaries
