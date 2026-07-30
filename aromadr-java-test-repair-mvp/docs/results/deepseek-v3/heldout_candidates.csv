@@ -1,0 +1,58 @@
+index,project_id,test_file,accepted,attempts,compiled,tests_pass,aromadr_before,aromadr_after,smell_types_before,model_calls,total_tokens,estimated_cost_usd,elapsed_seconds,status,infrastructure_rerun,original_datatd_unchanged
+1,blindpirate-xiedaimala-springboot,AuthControllerTest.java,False,2,True,True,2,3,RedundantPrint=1; UnknownTest=1,2,23825,0.01364682,167.735,rejected-rolled-back,False,True
+2,blindpirate-xiedaimala-springboot,BlogServiceTest.java,True,1,True,True,13,0,AssertionRoulette=10; MagicNumberTest=3,1,11469,0.00633142,83.766,accepted,False,True
+3,rwinch-spring-security5-reactive-bits,ContextTests.java,True,1,True,True,6,0,UnknownTest=6,1,10567,0.00649325,133.843,accepted,False,True
+4,blindpirate-xiedaimala-springboot,UserServiceTest.java,True,2,True,True,5,0,AssertionRoulette=2; UnknownTest=3,3,30761,0.0129574,163.328,accepted,False,True
+5,rwinch-spring-security5-reactive-bits,SimpleMethodSecurityTests.java,False,2,True,True,6,3,UnknownTest=6,2,22686,0.01380472,229.922,rejected-rolled-back,False,True
+6,blindpirate-xiedaimala-springboot,MyIntegrationTest.java,True,1,True,True,4,0,AssertionRoulette=2; ExceptionHandling=1; MagicNumberTest=1,1,9528,0.00490028,67.375,accepted,False,True
+7,rwinch-spring-security5-reactive-bits,MessageApplicationTests.java,True,1,True,True,3,0,UnknownTest=3,1,7601,0.00414816,94.781,accepted,False,True
+8,aws-samples-msk-config-providers,SecretsManagerConfigProviderTest.java,False,2,True,True,6,2,AssertionRoulette=4; UnknownTest=2,2,29716,0.01604628,160.907,rejected-rolled-back,False,True
+9,aws-samples-msk-config-providers,SsmParamStoreConfigProviderTest.java,False,2,True,True,6,1,AssertionRoulette=5; UnknownTest=1,2,35289,0.01882724,148.375,rejected-rolled-back,False,True
+10,lydtechconsulting-flyway-lambda,FlywayHandlerTest.java,True,2,True,True,4,0,AssertionRoulette=2; ExceptionHandling=2,2,18254,0.01193205,214.937,accepted,False,True
+11,shubh1646-CSYE6225-ccwebapp\webapp,UserServiceTest.java,True,1,True,True,3,0,UnknownTest=3,1,15904,0.00871348,111.782,accepted,False,True
+12,slack-samples-bolt-java-starter-template,SampleMessageListenerTest.java,True,1,True,True,2,0,MagicNumberTest=1; SleepyTest=1,1,8018,0.00450007,103.047,accepted,False,True
+13,v2g-demo-v2g-demo\backend,BillingServiceTest.java,False,2,True,True,5,4,AssertionRoulette=2; ExceptionHandling=3,2,34549,0.01736433,142.875,rejected-rolled-back,False,True
+14,webcompere-completable-future-retry,RetriesTest.java,True,2,True,True,5,0,UnknownTest=5,2,26078,0.01965895,348.485,accepted,False,True
+15,zhongjinggz-geekdemo\unjuanable,StringUtilTest.java,True,1,True,True,5,0,AssertionRoulette=5,1,13896,0.00633012,68.141,accepted,False,True
+16,lydtechconsulting-flyway-lambda,FlywayMigrationServiceTest.java,True,1,True,True,1,0,MagicNumberTest=1,1,5543,0.00308546,69.797,accepted,False,True
+17,shubh1646-CSYE6225-ccwebapp\webapp,BookServiceTest.java,True,1,True,True,2,0,UnknownTest=2,1,14296,0.00733019,90.485,accepted,False,True
+18,v2g-demo-v2g-demo\backend,InitialDataCreatorTest.java,True,1,True,True,2,0,RedundantPrint=1; UnknownTest=1,1,15339,0.00724579,73.469,accepted,False,True
+19,zhongjinggz-geekdemo\unjuanable,OrgStatusTest.java,True,2,True,True,2,0,AssertionRoulette=2,2,28628,0.01344063,114.484,accepted,False,True
+20,v2g-demo-v2g-demo\backend,PlacesTest.java,True,2,True,True,1,0,UnknownTest=1,2,37692,0.01846444,153.656,accepted,False,True
+21,zhongjinggz-geekdemo\unjuanable,OrgNameValidatorTest.java,False,2,True,True,2,2,UnknownTest=2,2,30902,0.01502925,124.735,rejected-rolled-back,False,True
+22,atlarge-research-yardstick\yardstick,SimpleMovementModelTest.java,False,2,False,False,6,4,ConditionalTest=2; DuplicateAssert=4,2,61699,0.03217782,257.688,rejected-rolled-back,False,True
+23,atlarge-research-yardstick\yardstick,ZigZagRangeTest.java,True,1,True,True,1,0,MagicNumberTest=1,1,25539,0.01177023,69.5,accepted,False,True
+24,dropwizard-dropwizard-foundationdb,FoundationDBFactoryTest.java,True,2,True,True,1,0,UnknownTest=1,2,26310,0.01294473,129.406,accepted,False,True
+25,dropwizard-dropwizard-foundationdb,FoundationDBHealthCheckTest.java,True,1,True,True,2,0,UnknownTest=2,1,13112,0.00637188,78.687,accepted,False,True
+26,dropwizard-dropwizard-foundationdb,InstrumentedDatabaseTest.java,True,2,True,True,5,0,ExceptionHandling=2; SleepyTest=1; UnknownTest=2,2,28298,0.01436283,154.312,accepted,False,True
+27,jckleiner-notion-backup,DropboxClientTest.java,True,1,True,True,6,0,ConditionalTest=3; RedundantPrint=3,1,15226,0.00820149,92.563,accepted,False,True
+28,jenkins-infra-ircbot,WeightedRandomAnswerTest.java,False,2,True,True,4,1,ConditionalTest=4,2,34206,0.01701764,136.375,rejected-rolled-back,False,True
+29,jenkins-infra-ircbot,IrcBotBuildInfoTest.java,True,1,True,True,7,0,AssertionRoulette=5; RedundantPrint=1; UnknownTest=1,1,17722,0.00895752,93.641,accepted,False,True
+30,jenkins-infra-ircbot,IrcBotConfigTest.java,False,2,True,True,2,1,RedundantPrint=1; UnknownTest=1,2,31887,0.01523979,124.75,rejected-rolled-back,False,True
+31,jenkins-infra-ircbot,IrcListenerTest.java,False,2,False,False,3,1,ConditionalTest=2; UnknownTest=1,2,45620,0.0252735,234.297,rejected-rolled-back,False,True
+32,mthiim-GeneCrypt,EnclaveSystemTest.java,True,1,True,True,2,0,UnknownTest=2,1,18782,0.01016508,140.578,accepted,False,True
+33,mthiim-GeneCrypt,EndpointIntegrationTest.java,True,1,True,True,17,0,AssertionRoulette=17,1,17344,0.00893272,114.813,accepted,False,True
+34,mthiim-GeneCrypt,SessionControlTest.java,True,2,True,True,8,0,AssertionRoulette=6; MagicNumberTest=1; SleepyTest=1,2,34704,0.01817647,178.531,accepted,False,True
+35,seime-openhab-esphome,ClimateMessageHandlerTest.java,True,2,True,True,2,0,SleepyTest=1; UnknownTest=1,2,58314,0.02924679,510.015,accepted,False,True
+36,CSLD-CSLD,LocalFilesTest.java,True,1,True,True,14,0,AssertionRoulette=10; ConditionalTest=2; ExceptionHandling=2,1,30585,0.01548426,121.203,accepted,False,True
+37,seime-openhab-esphome,PlainTextStreamHandlerTest.java,False,2,False,False,11,0,AssertionRoulette=5; DuplicateAssert=4; ExceptionHandling=1; RedundantPrint=1,2,60920,0.03117645,420.797,rejected-rolled-back,False,True
+38,ali-bouali-bootcamp-spring-boot,BootcampApplicationTests.java,True,1,True,True,2,0,EmptyTest=1; UnknownTest=1,1,16206,0.00745807,54.781,accepted,False,True
+39,tkonsta-pdf417-barcode-reader,Pdf417ReaderServiceTest.java,True,2,True,True,6,0,AssertionRoulette=4; UnknownTest=2,2,20327,0.01320008,181.422,accepted,False,True
+40,ali-bouali-bootcamp-spring-boot,AccountMapperTest.java,True,1,True,True,5,0,AssertionRoulette=4; MagicNumberTest=1,1,17491,0.00847684,75.594,accepted,False,True
+41,devtiro-spring-boot-rest-tutorial,BookServiceImplTest.java,True,2,True,True,3,0,MagicNumberTest=2; UnknownTest=1,2,16506,0.01096461,181.531,accepted,False,True
+42,Fernanda-Kipper-simplified-payment-api,PicpaysimplificadoApplicationTests.java,True,1,True,True,2,0,EmptyTest=1; UnknownTest=1,1,4648,0.00233769,74.125,accepted,False,True
+43,natanielpaiva-exemplo-test-spring,AlunoControllerTest.java,True,1,True,True,2,0,UnknownTest=2,1,4993,0.00293233,101.188,accepted,False,True
+44,seime-openhab-esphome,LogParserTest.java,True,2,True,True,2,0,MagicNumberTest=1; UnknownTest=1,2,50585,0.0232886,599.109,accepted,False,True
+45,tkonsta-pdf417-barcode-reader,Pdf417ReaderApplicationTests.java,True,1,True,True,2,0,EmptyTest=1; UnknownTest=1,1,5316,0.00267612,61.64,accepted,False,True
+46,trodix-spring-boot-auth-keycloak,ProductRepositoryTest.java,True,1,True,True,3,0,ConditionalTest=1; MagicNumberTest=1; UnknownTest=1,1,15607,0.00827153,146.312,accepted,False,True
+47,Wilson-Pedro-Servico-de-viagem-API,ViagemRepositoryTest.java,True,1,True,True,4,0,AssertionRoulette=4,1,29948,0.01474911,113.735,accepted,False,True
+48,ali-bouali-bootcamp-spring-boot,AccountRequestValidatorTest.java,True,2,True,True,5,0,AssertionRoulette=3; MagicNumberTest=1; UnknownTest=1,2,36019,0.0178089,139.188,accepted,False,True
+49,devtiro-spring-boot-rest-tutorial,BooksApplicationTests.java,True,2,True,True,2,0,EmptyTest=1; UnknownTest=1,2,8364,0.00459795,109.188,accepted,False,True
+50,Fernanda-Kipper-simplified-payment-api,UserRepositoryTest.java,True,1,True,True,2,0,UnknownTest=2,1,5219,0.00271179,80.593,accepted,False,True
+51,natanielpaiva-exemplo-test-spring,ProjetoApplicationTests.java,True,1,True,True,2,0,EmptyTest=1; UnknownTest=1,1,3620,0.00195359,97.516,accepted,False,True
+52,seime-openhab-esphome,ESPHomeHandlerTest.java,True,2,True,True,1,0,MagicNumberTest=1,2,54466,0.02589294,542.25,accepted,False,True
+53,trodix-spring-boot-auth-keycloak,ProductControllerTest.java,True,2,True,True,2,0,UnknownTest=2,2,29940,0.01534724,200.062,accepted,False,True
+54,Wilson-Pedro-Servico-de-viagem-API,UsuarioRepositoryTest.java,True,1,True,True,2,0,AssertionRoulette=2,1,27188,0.01263066,101.437,accepted,False,True
+55,ali-bouali-bootcamp-spring-boot,AccountServiceTest.java,True,1,True,True,1,0,MagicNumberTest=1,1,16664,0.0076834,60.079,accepted,False,True
+56,Fernanda-Kipper-simplified-payment-api,TransactionServiceTest.java,True,2,True,True,1,0,UnknownTest=1,2,14718,0.0087783,161.218,accepted,False,True
+57,trodix-spring-boot-auth-keycloak,ProductServiceTest.java,True,2,True,True,2,0,UnknownTest=2,2,29634,0.01498445,180.266,accepted,False,True

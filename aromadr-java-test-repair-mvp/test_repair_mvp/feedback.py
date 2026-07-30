@@ -14,10 +14,15 @@ class MasterEvaluator:
     ) -> EvaluationDecision:
         reasons: list[str] = []
         feedback_items: list[str] = []
+        authoritative_smell_count = (
+            smell_report.count_from("AromaDr")
+            if smell_report.aroma_dr_available
+            else smell_report.count
+        )
         criteria = {
             "compiled": execution.compiled,
             "passed": execution.passed,
-            "smell_threshold": smell_report.count <= task.max_accepted_smells,
+            "smell_threshold": authoritative_smell_count <= task.max_accepted_smells,
         }
 
         if not execution.compiled:
@@ -28,13 +33,19 @@ class MasterEvaluator:
             reasons.append("Generated tests compiled but failed.")
             feedback_items.append("Keep valid expected behavior, but repair failing assertions or setup.")
 
-        if smell_report.count > task.max_accepted_smells:
-            reasons.append(f"Detected {smell_report.count} test smell(s).")
+        if authoritative_smell_count > task.max_accepted_smells:
+            detector_name = "AromaDr" if smell_report.aroma_dr_available else "combined"
+            reasons.append(
+                f"Detected {authoritative_smell_count} authoritative "
+                f"{detector_name} test smell(s)."
+            )
             feedback_items.extend(self._feedback_from_smells(smell_report))
 
         accepted = all(criteria.values())
         if accepted:
-            reasons.append("Tests compile, pass, and no MVP smell findings remain.")
+            reasons.append(
+                "Tests compile, pass, and no authoritative smell findings remain."
+            )
             feedback_items.append("No repair needed.")
 
         return EvaluationDecision(
@@ -58,7 +69,12 @@ class MasterEvaluator:
         }
         items: list[str] = []
         seen: set[str] = set()
-        for finding in smell_report.findings:
+        findings = (
+            smell_report.findings_from("AromaDr")
+            if smell_report.aroma_dr_available
+            else smell_report.findings
+        )
+        for finding in findings:
             text = templates.get(finding.smell_type, finding.message)
             if text not in seen:
                 items.append(text)

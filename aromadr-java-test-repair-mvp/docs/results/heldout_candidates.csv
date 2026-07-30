@@ -1,0 +1,18 @@
+index,project_id,test_file,accepted,attempts,compiled,tests_pass,aromadr_before,aromadr_after,smell_types_before,model_calls,total_tokens,estimated_cost_usd,elapsed_seconds,status,infrastructure_rerun,original_datatd_unchanged
+1,codingthought-ddd-aggregate-helper,OrderServiceTest.java,False,2,True,False,3,0,UnknownTest=3,2,23568,0.01751702,278.031,rejected-rolled-back,False,True
+2,dm-drogeriemarkt-micrometer-metrics-wrapper,MetricAnnotationAdvisorTest.java,False,2,False,False,4,6,UnknownTest=4,2,19772,0.01133567,143.313,rejected-rolled-back,False,True
+3,dm-drogeriemarkt-retrylib-spring-boot-starter,RetryServiceUnitTest.java,True,2,True,True,7,0,AssertionRoulette=6; UnknownTest=1,2,21049,0.01302173,176.719,accepted,False,True
+4,eo-cqrs-eo-rs,JsonErrorTest.java,True,1,True,True,2,0,UnknownTest=2,1,7593,0.00411597,85.312,accepted,False,True
+5,hdisysteme-java-cfenv-s3,CfEnvS3ProcessorUnitTest.java,True,1,True,True,6,0,AssertionRoulette=6,1,7256,0.004688,62.281,accepted,False,True
+6,jashaj-spring-boot-thymeleaf-fragments,CityControllerTest.java,True,2,True,True,12,0,UnknownTest=12,2,24087,0.01494921,198.453,accepted,False,True
+7,kriscfoster-spring-boot-testing-pyramid,WelcomeControllerAcceptanceTest.java,True,1,True,True,4,0,AssertionRoulette=4,1,2893,0.00189225,68.828,accepted,False,True
+8,Neloop-jaclp,RoleTest.java,True,1,True,True,89,0,AssertionRoulette=69; MagicNumberTest=20,1,21295,0.01281249,122.969,accepted,False,True
+9,psamsotha-jersey-web-initializer,AsFilterServletContainerProviderTest.java,True,1,True,True,4,0,UnknownTest=4,1,7336,0.00508124,81.922,accepted,False,True
+10,rodrigovp-ecommerce,RotinaDiurnaIntegrationTest.java,True,2,True,True,1,0,UnknownTest=1,2,9949,0.00582334,198.282,accepted,False,True
+11,rodrigovp-fragmentos,ArtigoTest.java,True,2,True,True,3,0,UnknownTest=3,2,20087,0.01361463,189.391,accepted,False,True
+12,dm-drogeriemarkt-micrometer-metrics-wrapper,ApplicationIntegrationTest.java,True,1,True,True,3,0,ConditionalTest=1; UnknownTest=2,1,8124,0.00466798,96.438,accepted,False,True
+13,dm-drogeriemarkt-retrylib-spring-boot-starter,ApplicationShutdownHandlerUnitTest.java,True,2,True,True,2,0,UnknownTest=2,2,15394,0.0060791,128.61,accepted,True,True
+14,eo-cqrs-eo-rs,WithCodeTest.java,True,1,True,True,1,0,UnknownTest=1,1,7318,0.00392805,87.5,accepted,False,True
+15,jashaj-spring-boot-thymeleaf-fragments,ApplicationTest.java,True,1,True,True,1,0,UnknownTest=1,1,6618,0.00341866,82.5,accepted,False,True
+16,kriscfoster-spring-boot-testing-pyramid,WelcomeControllerIntegrationTest.java,True,1,True,True,2,0,UnknownTest=2,1,5265,0.00391239,89.203,accepted,False,True
+17,Neloop-jaclp,AclPermissionEvaluatorTest.java,True,1,True,True,31,0,AssertionRoulette=31,1,18374,0.01119864,103.625,accepted,False,True

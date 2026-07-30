@@ -17,6 +17,7 @@ tools/
 
 # Local datasets can be very large and should not be committed
 datasets/
+/datatd/
 
 # External repositories are documented but not vendored
 external/

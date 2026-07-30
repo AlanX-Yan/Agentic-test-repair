@@ -12,6 +12,15 @@ from .models import ProjectTask, SmellFinding, SmellReport
 from .utils import run_command
 
 
+def _read_utf8(path: Path) -> str:
+    """Read paths beyond Windows' traditional MAX_PATH limit."""
+    path_text = str(path.resolve())
+    if os.name == "nt" and not path_text.startswith("\\\\?\\"):
+        path_text = f"\\\\?\\{path_text}"
+    with open(path_text, encoding="utf-8") as handle:
+        return handle.read()
+
+
 class AromaDrDetector:
     """External AromaDr adapter.
 
@@ -53,7 +62,7 @@ class AromaDrDetector:
         payload = {
             "language": "java",
             "framework": "junit",
-            "testFileContent": task.test_file.read_text(encoding="utf-8"),
+            "testFileContent": _read_utf8(task.test_file),
         }
         request = urllib.request.Request(
             endpoint,
@@ -211,7 +220,7 @@ class LightweightJUnitDetector:
     TEST_METHOD_RE = re.compile(r"(?:public\s+|private\s+|protected\s+)?(?:static\s+)?void\s+(\w+)\s*\(")
 
     def detect(self, task: ProjectTask) -> SmellReport:
-        source = task.test_file.read_text(encoding="utf-8")
+        source = _read_utf8(task.test_file)
         lines = source.splitlines()
         findings: list[SmellFinding] = []
 

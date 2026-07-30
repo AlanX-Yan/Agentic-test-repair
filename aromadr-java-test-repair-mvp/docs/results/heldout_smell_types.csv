@@ -1,0 +1,5 @@
+smell_type,candidate_attempts,accepted_candidates,success_rate,before,after
+AssertionRoulette,5,5,1.0,116,0
+ConditionalTest,1,1,1.0,1,0
+MagicNumberTest,1,1,1.0,20,0
+UnknownTest,13,11,0.8461538461538461,38,0

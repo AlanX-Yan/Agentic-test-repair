@@ -97,6 +97,114 @@ AROMADR_API_URL="http://localhost:3000" python3 -m test_repair_mvp --scan-datase
 The scanner writes `dataset_scan_summary.json`, `projects.csv`,
 `test_files.csv`, `candidate_tests.csv`, and `dataset_candidate_report.md`.
 
+Select a fixed AromaDr-only repair subset and validate the candidate-to-repair
+bridge:
+
+```bash
+python scripts/select_repair_candidates.py \
+  .mvp_runs/datatd-batch40-aromadr/candidate_tests.csv \
+  .mvp_runs/datatd-repair-subset/candidate_subset.csv \
+  --limit 40 --max-per-project 2
+
+python -m test_repair_mvp \
+  --repair-candidates .mvp_runs/datatd-repair-subset/candidate_subset.csv \
+  --repair-output-dir .mvp_runs/datatd-repair-baseline \
+  --repair-maven-repo ../datatd/.m2/repository
+```
+
+With the default `template` backend, the DataTD adapter is baseline-only. With
+the explicitly selected `deepseek` backend, eligible candidates enter the
+validated repair-and-rollback loop described below.
+
+## DeepSeek Repair Backend
+
+Configure DeepSeek in the PowerShell session that will run the project:
+
+```powershell
+$env:DEEPSEEK_API_KEY = Read-Host "DeepSeek API key" -MaskInput
+$env:DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+$env:DEEPSEEK_MODEL = "deepseek-v4-pro"
+```
+
+Run one eligible candidate as an end-to-end smoke test:
+
+```powershell
+python -m test_repair_mvp `
+  --repair-candidates .mvp_runs/datatd-repair-subset/candidate_subset.csv `
+  --repair-output-dir .mvp_runs/deepseek-smoke-1 `
+  --repair-maven-repo ../datatd/.m2/repository `
+  --coding-backend deepseek `
+  --repair-max-attempts 1 `
+  --repair-limit 1
+```
+
+Only candidates whose baseline compiles, passes tests, has AromaDr available,
+and has at least one AromaDr finding are sent to DeepSeek. The model may replace
+only the isolated copy of the selected Java test. Rejected changes are saved as
+`rejected_test.java` plus `repair.diff`, then rolled back. API metadata and
+token-based cost estimates are stored in `model_calls.json`; API keys and raw
+authorization headers are never written to artifacts.
+
+### Current DataTD Development Result
+
+The DeepSeek backend has completed a development cohort used to stabilize the
+prompt and evaluator:
+
+- 10 candidates screened across 10 Maven projects
+- 8 compiled at baseline; 4 passed baseline tests and were API-eligible
+- 4 of 4 eligible repairs accepted
+- 136 authoritative AromaDr findings reduced to 0
+- 6 model calls, 93,651 recorded tokens, approximately USD 0.0606
+- original DataTD files remained byte-for-byte unchanged
+
+These are development results, not held-out final evaluation results. Batch
+runs support `--repair-offset` plus `--repair-limit` to avoid duplicate calls,
+one non-thinking recovery for empty/invalid JSON, and candidate-level failure
+isolation.
+
+### Frozen Held-Out Evaluation
+
+The `deepseek-v1` held-out evaluation is complete:
+
+- 17 strictly eligible candidates from 11 projects
+- 15 accepted and 2 rejected/rolled back: 88.2% success
+- 10 first-attempt successes and 5 feedback-retry successes
+- 175 initial AromaDr findings; accepted repairs ended with 0
+- 24 model calls, 225,978 tokens, approximately USD 0.1381
+- 1 compile regression and 1 test regression, both rejected
+- no original DataTD file changed
+
+See `docs/DATATD_RESULTS.md`, `docs/REPAIR_EVALUATION.md`, and
+`docs/FAILURE_ANALYSIS.md`. Small path-neutral results are under
+`docs/results/`; raw `.mvp_runs` artifacts remain local.
+
+The exact frozen command and hashes are documented in
+`docs/EVALUATION_PROTOCOL.md`. Manual review of ten accepted diffs found seven
+clean passes, one minor caution, and two repairs that should fail a stricter
+human quality gate; see `docs/SEMANTIC_REVIEW.md`.
+
+### DeepSeek V4 Pro Extension Evaluation
+
+Three independently frozen protocols used the same repair semantics and the
+`deepseek-v4-pro` model. The final formal evaluation contains exactly 100
+strict-eligible candidates:
+
+- 85 accepted and 15 rejected/rolled back: 85.0% automated success
+- 484 initial AromaDr findings reduced to 30 in last proposals; all remaining
+  findings were in rejected proposals
+- 146 model calls, 1,838,056 tokens, estimated USD 0.99152858
+- 55 first-attempt successes and 30 feedback-retry successes
+- no original DataTD file changed
+
+V3 contributed 57 candidates across Java 8, 11, and 17, selected using exact
+commits and Java versions from an advisor-provided DataTD benchmark list. Its
+automated result was 46/57 (80.7%) at USD 0.70249373. Manual review found that
+the structural gate can still accept semantically weak changes, so 85/100 is
+reported specifically as the automated endpoint.
+
+See `docs/EVALUATION_PROTOCOL_V3.md`, `docs/REPAIR_EVALUATION.md`,
+`docs/SEMANTIC_REVIEW_V3.md`, and `docs/results/formal-100/`.
+
 ## AromaDr Integration
 
 The preferred integration is AromaDr's HTTP API. Start AromaDr separately, then set `AROMADR_API_URL`:
@@ -139,7 +247,7 @@ If AromaDr is not running, the detector records `aroma_dr_available=false` and f
 
 ```text
 test_repair_mvp/
-  agents.py          coding-agent interface and deterministic demo agent
+  agents.py          template and DeepSeek coding-agent backends
   harness.py         Java execution harness for javac-demo, Maven, and Gradle
   detectors.py       AromaDr adapter plus lightweight local detector
   feedback.py        master evaluator and feedback generator
@@ -161,8 +269,12 @@ docs/
 
 ## MVP Boundaries
 
-- The demo agent is deterministic so the pipeline is reproducible.
+- The template backend is deterministic so bundled demos remain reproducible.
+- DeepSeek is the real OpenAI-compatible backend for eligible DataTD repairs.
 - The generated tests are JUnit-style, but the local demo uses a tiny JUnit API stub so it can run without downloading dependencies.
 - The local detector is not a replacement for AromaDr; it exists so the demo runs when the AromaDr service is not currently available.
 - The current deterministic repair templates address the AromaDr smells observed so far: `UnknownTest`, `MagicNumberTest`, `AssertionRoulette`, and `ExceptionHandling`.
-- Gradle, JaCoCo, PIT, and real LLM-based coding agents are explicit next integration points.
+- When AromaDr is available, its findings are authoritative for acceptance and feedback; lightweight findings remain diagnostic.
+- Candidate repair changes only the authorized test file in an isolated copy; rejected changes are snapshotted and rolled back.
+- The 100-candidate held-out evaluation, budget controls, rollback, and final
+  result summaries are complete. JaCoCo and PIT remain optional extensions.
